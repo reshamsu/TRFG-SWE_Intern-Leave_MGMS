@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import pool from "../config/db.js";
 
-
 export async function handleLogin(req, res) {
   //   console.log("Handle Auth Login is working!");
 
@@ -53,7 +52,7 @@ export async function handleLogin(req, res) {
     });
     // If email or password failed error response message gives "Login failed"
   } catch (error) {
-    console.log("Login Error", error);
+    console.error("Login Error", error);
 
     return res.status(500).json({
       error: "Login Server Error",
@@ -113,14 +112,35 @@ export async function handleRegister(req, res) {
 
     // if user exists or server down, response sends error message "Failed"
   } catch (error) {
-    console.log("Registration Failed", error);
+    console.error("Registration Failed", error);
     return res.status(500).json({
         error: "Registration Error",
     });
   }
 }
 
-// export async function handleAuthMe(req, res) {
-//   //   console.log("Handle Auth Me is working!");
-//   res.json({ message: "Me route is working!" });
-// }
+// Temporary Placement for now until JWT is established
+export async function handleUsers(req, res) {
+  //   console.log("Handle Auth Me is working!");
+  
+  try {
+    // Defining the result by selecting users in order
+    const result = await pool.query(
+      "SELECT id, email FROM public.users ORDER BY id", 
+    );
+
+    // If users are available to display all of them
+    return res.status (200).json ({
+      users: result.rows,
+    });
+
+    // If there are no users or server failed then display error
+  } catch (error) {
+    console.error("Fetching users error", error);
+
+    // Response will show server failed error
+    return res.status(500).json({
+      error: "Could not fetch users",
+    });
+  }
+}
