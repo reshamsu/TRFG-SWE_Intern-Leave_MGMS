@@ -17,11 +17,9 @@ export async function handleLogin(req, res) {
 
     // Defining result by checking db selector 
     const result = await pool.query(
-      "SELECT id, email, password FROM public.users WHERE email = $1",
+      "SELECT id, email, password, role FROM public.users WHERE email = $1",
       [email],
     );
-
-    console.log("Result Displaying", result);
 
     // Checking if email and password exists in the table
     if (result.rows.length === 0) {
@@ -48,6 +46,7 @@ export async function handleLogin(req, res) {
       user: {
         id: user.id,
         email: user.email,
+        role: user.role,
       },
     });
     // If email or password failed error response message gives "Login failed"
@@ -98,9 +97,9 @@ export async function handleRegister(req, res) {
 
     // Passes the result into table if user doesnt exist
     const result = await pool.query(
-        `INSERT INTO public.users (email, password) 
-        VALUES ($1, $2) 
-        RETURNING id, email`, 
+        `INSERT INTO public.users (email, password, role) 
+        VALUES ($1, $2, 'employee') 
+        RETURNING id, email, role`, 
         [email, hashedPassowrd],
     );
 
@@ -120,27 +119,27 @@ export async function handleRegister(req, res) {
 }
 
 // Temporary Placement for now until JWT is established
-export async function handleUsers(req, res) {
-  //   console.log("Handle Auth Me is working!");
+// export async function handleUsers(req, res) {
+//   //   console.log("Handle Auth Me is working!");
   
-  try {
-    // Defining the result by selecting users in order
-    const result = await pool.query(
-      "SELECT id, email FROM public.users ORDER BY id", 
-    );
+//   try {
+//     // Defining the result by selecting users in order
+//     const result = await pool.query(
+//       "SELECT id, email FROM public.users ORDER BY id", 
+//     );
 
-    // If users are available to display all of them
-    return res.status (200).json ({
-      users: result.rows,
-    });
+//     // If users are available to display all of them
+//     return res.status (200).json ({
+//       users: result.rows,
+//     });
 
-    // If there are no users or server failed then display error
-  } catch (error) {
-    console.error("Fetching users error", error);
+//     // If there are no users or server failed then display error
+//   } catch (error) {
+//     console.error("Fetching users error", error);
 
-    // Response will show server failed error
-    return res.status(500).json({
-      error: "Could not fetch users",
-    });
-  }
-}
+//     // Response will show server failed error
+//     return res.status(500).json({
+//       error: "Could not fetch users",
+//     });
+//   }
+// }
