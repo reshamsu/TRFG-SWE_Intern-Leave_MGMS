@@ -1,3 +1,4 @@
+import pool from "../config/db.js";
 import {
   getAllLeaves,
   approveLeave,
@@ -23,17 +24,32 @@ export async function handleGETAllLeaves(req, res) {
 export async function handleApproveLeave(req, res) {
   try {
     const { id } = req.params;
-    const { approved_by } = req.body ?? {};
+    const { approvedBy } = req.body;
 
-    if (!approved_by) {
+    if (!approvedBy) {
       return res.status(400).json({
-        error: "approved_by is required",
+        message: "approvedBy is required",
       });
     }
 
-    const leaveRequests = await approveLeave(id, approved_by);
+    const result = await pool.query(
+      `SELECT id
+     FROM public.users
+     WHERE id = $1
+     AND role = 'admin'
+     LIMIT 1`,
+      [approvedBy],
+    );
 
-    if (!leaveRequests) {
+    if (result.rows.length === 0) {
+      return res.status(403).json({
+        message: "You are not authorized to approve requests",
+      });
+    }
+
+    const leaveRequest = await approveLeave(id, approvedBy);
+
+    if (!leaveRequest) {
       return res.status(404).json({
         error: "Pending leave request not found",
       });
@@ -41,7 +57,7 @@ export async function handleApproveLeave(req, res) {
 
     return res.status(200).json({
       message: "Leave request approved successfully",
-      leaveRequests,
+      leaveRequest,
     });
   } catch (error) {
     console.error("Approve leave error", error);
@@ -55,19 +71,30 @@ export async function handleApproveLeave(req, res) {
 export async function handleRejectLeave(req, res) {
   try {
     const { id } = req.params;
-    const { approved_by, rejection_reason } = req.body ?? {};
+    const { approvedBy, rejectionReason } = req.body ?? {};
 
-    if (!approved_by || !rejection_reason) {
+    if (!approvedBy || !rejectionReason) {
       return res.status(400).json({
-        error: "approved_by and rejection_reason are required",
+        error: "approvedBy and rejectionReason are required",
       });
     }
 
-    const leaveRequest = await rejectLeave(
-      id,
-      approved_by,
-      rejection_reason,
+    const result = await pool.query(
+      `SELECT id
+     FROM public.users
+     WHERE id = $1
+     AND role = 'admin'
+     LIMIT 1`,
+      [approvedBy],
     );
+
+    if (result.rows.length === 0) {
+      return res.status(403).json({
+        message: "You are not authorized to reject requests",
+      });
+    }
+
+    const leaveRequest = await rejectLeave(id, approvedBy, rejectionReason);
 
     if (!leaveRequest) {
       return res.status(404).json({

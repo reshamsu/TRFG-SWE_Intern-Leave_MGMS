@@ -2,7 +2,6 @@ import pool from "../config/db.js";
 
 export async function createLeave({
   employee_id,
-  leave_type_id,
   start_date,
   end_date,
   reason,
@@ -11,7 +10,6 @@ export async function createLeave({
     `INSERT INTO public.leave_requests
         (
         employee_id,
-        leave_type_id,
         start_date,
         end_date,
         total_days,
@@ -22,23 +20,21 @@ export async function createLeave({
         (
         $1,
         $2,
-        $3,
-        $4, 
-        ($4::date - $3::date) + 1, 
-        $5,
+        $3, 
+        ($3::date - $2::date) + 1, 
+        $4,
         'pending'
         )
         RETURNING
         id,
         employee_id,
-        leave_type_id,
         start_date,
         end_date,
         total_days,
         reason,
         status,
         created_at`,
-    [employee_id, leave_type_id, start_date, end_date, reason],
+    [employee_id, start_date, end_date, reason],
   );
 
   return result.rows[0];
@@ -49,7 +45,6 @@ export async function findLeavesByEmployee(employeeId) {
     `SELECT
         id,
         employee_id,
-        leave_type_id,
         start_date,
         end_date,
         total_days,
@@ -68,6 +63,8 @@ export async function findLeavesByEmployee(employeeId) {
 
   return result.rows;
 }
+
+// -----------------------------------------------------------------------------------
 
 export async function approveLeave(id, approvedBy) {
   const result = await pool.query(
@@ -108,7 +105,6 @@ export async function getAllLeaves() {
     `SELECT
       id,
       employee_id,
-      leave_type_id,
       start_date,
       end_date,
       total_days,

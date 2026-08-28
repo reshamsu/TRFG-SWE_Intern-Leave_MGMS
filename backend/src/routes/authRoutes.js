@@ -17,7 +17,7 @@ export async function handleLogin(req, res) {
 
     // Defining result by checking db selector 
     const result = await pool.query(
-      "SELECT id, email, password, role FROM public.users WHERE email = $1",
+      "SELECT id, name, email, password, role FROM public.users WHERE email = $1 LIMIT 1",
       [email],
     );
 
@@ -64,12 +64,12 @@ export async function handleRegister(req, res) {
 
   try {
     // Definig email and password to send request 
-    const { email, password } = req.body ?? {};
+    const { name, email, password } = req.body ?? {};
 
     // Check if email or password is entered before submitting
-    if (!email || !password) {
+    if (!name || !email || !password) {
         return res.status(400).json({
-            error: "Email and password are required",
+            error: "Your Name, Email and password are required",
         });
     }
 
@@ -88,7 +88,7 @@ export async function handleRegister(req, res) {
     // Check if user is existing in the table
     if (existingUser.rows.length > 0) {
         return res.status (409).json({
-            error: "Email is already registered",
+            error: "User already exists.",
         })
     }
 
@@ -97,10 +97,10 @@ export async function handleRegister(req, res) {
 
     // Passes the result into table if user doesnt exist
     const result = await pool.query(
-        `INSERT INTO public.users (email, password, role) 
-        VALUES ($1, $2, 'employee') 
-        RETURNING id, email, role`, 
-        [email, hashedPassowrd],
+        `INSERT INTO public.users (name, email, password, role) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING id, name, email, role`, 
+        [name, email, hashedPassowrd, "employee"],
     );
 
     // if user doesnt exist new user is passed to table with success message
@@ -118,6 +118,8 @@ export async function handleRegister(req, res) {
   }
 }
 
+
+
 // Temporary Placement for now until JWT is established
 // export async function handleUsers(req, res) {
 //   //   console.log("Handle Auth Me is working!");
@@ -125,7 +127,7 @@ export async function handleRegister(req, res) {
 //   try {
 //     // Defining the result by selecting users in order
 //     const result = await pool.query(
-//       "SELECT id, email FROM public.users ORDER BY id", 
+//       "SELECT id, name, email FROM public.users WHERE email = $1 ORDER BY id LIMIT 1", 
 //     );
 
 //     // If users are available to display all of them

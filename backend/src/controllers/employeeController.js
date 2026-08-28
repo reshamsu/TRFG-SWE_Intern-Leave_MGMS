@@ -1,24 +1,21 @@
-import { createLeave, findLeavesByEmployee } from "../services/leaveServer.js"
+import { createLeave, findLeavesByEmployee } from "../services/leaveServer.js";
 
 export async function createLeaveRequest(req, res) {
- try {
-  const {
-    employee_id,
-    leave_type_id,
-    start_date,
-    end_date,
-    reason,
-  } = req.body ?? {};
-  
-  if (
-    !employee_id || !leave_type_id || !start_date || !end_date || !reason
-  ) {
-    return res.status(400).json({
-      error: "employee_id, leave_type_id, start_date, end_date, reason are required!",
+  try {
+    const {employee_id, start_date, end_date, reason } = req.body ?? {};
+
+    if (!employee_id || !start_date || !end_date || !reason) {
+      return res.status(400).json({
+        error: "employee_id, start_date, end_date, reason are required!",
+      });
+    }
+
+    const leaveRequest = await createLeave({
+      employee_id,
+      start_date,
+      end_date,
+      reason
     });
-  }
-  
-    const leaveRequest = await createLeave(req.body);
 
     return res.status(201).json({
       message: "Leave request submitted successfully",
@@ -32,7 +29,6 @@ export async function createLeaveRequest(req, res) {
     });
   }
 }
- 
 
 export async function getMyLeaveRequest(req, res) {
   try {
