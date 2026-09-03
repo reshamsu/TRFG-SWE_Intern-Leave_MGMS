@@ -1,16 +1,19 @@
 import express from "express";
 import cors from "cors";
-import {
-  handleRegister,
-  handleLogin,
-  handleUsers,
-} from "./routes/authRoutes.js";
-import { handleLeavePOST, handleLeaveID, handleLeaveGET, handleLeaveApprove, handleLeaveReject } from "./routes/leaveRoutes.js";
+
+import { handleRegister, handleLogin } from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import employeeRoutes from "./routes/employeeRoutes.js";
 // import pool from "./config/db.js";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -18,15 +21,12 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/api/auth/login", handleLogin);
 app.post("/api/auth/register", handleRegister);
 
-// Public temp to be protected with auth middleware
-app.get("/api/users", handleUsers);
+// Public Leave Requests for Employee and Admin Roles
+app.use("/api", employeeRoutes);
+app.use("/api/admin", adminRoutes);
 
-// Public Leave Request API's
-app.post("/api/leaves", handleLeavePOST);
-app.get("/api/leaves/id", handleLeaveID);
-app.get("/api/leaves/all", handleLeaveGET);
-app.put("/api/leaves/:id/approve", handleLeaveApprove);
-app.put("/api/leaves/:id/reject", handleLeaveReject);
+// Public temp to be protected with auth middleware
+// app.get("/api/users", handleUsers);
 
 // TEST RUNTIME
 // app.get("/api/leave", (req, res) => {
