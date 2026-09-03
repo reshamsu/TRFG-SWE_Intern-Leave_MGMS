@@ -183,14 +183,14 @@ export default function Dashboard() {
         <div className="mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-4">
             <Card className="px-6 gap-2">
-              <CardTitle className="font-semibold">All Requests</CardTitle>
+              <CardTitle className="font-semibold">All Employees</CardTitle>
 
               <CardDescription>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
               </CardDescription>
             </Card>
             <Card className="px-6 gap-2">
-              <CardTitle className="font-semibold">All Users</CardTitle>
+              <CardTitle className="font-semibold">All Requests</CardTitle>
 
               <CardDescription>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -204,7 +204,7 @@ export default function Dashboard() {
               </CardDescription>
             </Card>
             <Card className="px-6 gap-2">
-              <CardTitle className="font-semibold">Available Shortly</CardTitle>
+              <CardTitle className="font-semibold">On Leave</CardTitle>
 
               <CardDescription>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.

@@ -26,7 +26,7 @@ export default function DashboardLayout({ role }) {
             />
 
             <h1 className="text-lg xl:text-xl font-semibold">
-              {role === "admin" ? "Admin Portal" : "Employee Portal"}
+              {role === "admin" ? "Admin Panel" : "Employee Panel"}
             </h1>
           </span>
 

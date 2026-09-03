@@ -36,9 +36,9 @@ export default function Sidebar({ role, isOpen, onClose }) {
         {/* Brand */}
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-semibold">Empl Mgms</h3>
+            <h3 className="text-xl font-semibold">Leave Mgms</h3>
 
-            <p className="text-sm text-muted-foreground">Leave Management</p>
+            <p className="text-sm text-muted-foreground">Leave Management System</p>
           </div>
 
           {/* Close button - mobile only */}

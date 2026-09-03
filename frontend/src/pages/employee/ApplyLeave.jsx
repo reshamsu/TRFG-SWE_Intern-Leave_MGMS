@@ -81,7 +81,7 @@ export default function ApplyLeave() {
         <div className="mt-4 w-full max-w-2xl bg-white rounded-3xl shadow-md p-7">
           <form onSubmit={handleCreateRequest}>
             {error && (
-              <p className="text-sm text-center text-red-600 px-4 py-2 bg-red-100 border border-red-200 rounded-lg">
+              <p className="text-sm text-center text-red-600 px-4 mb-4 py-2 bg-red-100 border border-red-200 rounded-lg">
                 {error}
               </p>
             )}

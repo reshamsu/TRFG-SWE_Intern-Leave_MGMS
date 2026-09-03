@@ -130,7 +130,7 @@ export default function LeaveHistory() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Could not approve leave request.");
+        throw new Error(data.message || "Could not cancel leave request.");
       }
 
       // Update the table immediately
