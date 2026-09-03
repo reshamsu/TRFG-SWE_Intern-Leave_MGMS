@@ -1,30 +1,59 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
+import { Bell, Menu, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export default function DashboardLayout({ role }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-red-50">
+      <Sidebar role={role} isOpen={sidebarOpen} onClose={closeSidebar} />
 
-      {/* Sidebar receives the role */}
-      <Sidebar role={role} />
-
-      {/* Main application area */}
-      <div className="ml-64">
-
+      <div className="ml-0 lg:ml-64">
         {/* Header */}
-        <header className="fixed left-64 right-0 top-0 z-30 flex h-20 items-center border-b bg-white px-10">
-          <h1 className="text-xl font-semibold">
-            {role === "admin"
-              ? "Admin Portal"
-              : "Employee Portal"}
-          </h1>
+        <header className="fixed left-0 lg:left-64 right-0 top-0 z-30 flex h-20 items-center justify-between border-b bg-white px-6 lg:px-10">
+          <span className="flex items-center gap-3">
+            <Menu
+              size={22}
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden"
+            />
+
+            <h1 className="text-lg xl:text-xl font-semibold">
+              {role === "admin" ? "Admin Portal" : "Employee Portal"}
+            </h1>
+          </span>
+
+          <span className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={0}
+              variant="outline"
+              className="rounded-full px-3 py-5 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+            >
+              <Search size={14} />
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={0}
+              variant="outline"
+              className="rounded-full px-3 py-5 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+            >
+              <Bell size={20} />
+            </Button>
+          </span>
         </header>
 
-        {/* Current route gets rendered here */}
         <main className="pt-20">
           <Outlet />
         </main>
-
       </div>
     </div>
   );

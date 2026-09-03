@@ -1,12 +1,16 @@
 import express from "express";
 import {
-  createLeaveRequest,
-  getMyLeaveRequest,
+  handleCancelMyLeave,
+  handleGetMyLeave,
+  handleCreateLeave,
+  handleChangeMyLeave,
 } from "../controllers/employeeController.js";
 
 const router = express.Router();
 
-router.post("/leaves", createLeaveRequest);
-router.get("/leaves/my", getMyLeaveRequest); // my?employee_id=2
+router.post("/leaves", handleCreateLeave);
+router.get("/leaves/my", handleGetMyLeave); // my?employee_id=2
+router.put("/leaves/:id/cancel", handleCancelMyLeave); 
+router.put("/leaves/:id/change", handleChangeMyLeave);
 
 export default router;

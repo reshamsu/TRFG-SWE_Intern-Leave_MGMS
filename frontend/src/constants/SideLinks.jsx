@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   FilePlus2,
   ClipboardList,
+  User,
 //   Users,
 //   CheckCircle2,
 } from "lucide-react";
@@ -35,6 +36,11 @@ const adminLinks = [
     label: "Leave Requests",
     to: "/admin/leaves",
     icon: ClipboardList,
+  },
+    {
+    label: "All Users",
+    to: "/admin/users",
+    icon: User,
   },
 ];
 

@@ -1,36 +1,78 @@
-import { LucideLogOut } from "lucide-react";
+import { LucideLogOut, X } from "lucide-react";
 import SideLink from "../constants/SideLinks";
+import { useNavigate } from "react-router-dom";
 
-export default function Sidebar({ role }) {
+export default function Sidebar({ role, isOpen, onClose }) {
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    sessionStorage.removeItem("user");
+
+    navigate("/login", { replace: true });
+  };
+
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r bg-white p-5 shadow-md">
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      {/* Brand */}
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold">
-          Empl Mgms
-        </h3>
+      <aside
+        className={`
+          fixed left-0 top-0 z-50
+          flex h-screen w-64 flex-col
+          border-r bg-white p-5 shadow-md
+          transition-transform duration-300 ease-in-out
 
-        <p className="text-sm text-muted-foreground">
-          Leave Management
-        </p>
-      </div>
+          lg:translate-x-0
 
-      {/* Navigation */}
-      <div className="flex-1">
-        <SideLink role={role} />
-      </div>
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        {/* Brand */}
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h3 className="text-xl font-semibold">Empl Mgms</h3>
 
-      {/* User / Logout */}
-      <div className="border-t pt-4">
-        <button
-          type="button"
-          className="flex justify-between items-center w-full rounded-lg px-4 py-2 text-left text-sm font-medium text-muted-foreground transition-transform hover:bg-muted hover:text-foreground"
-        >
-          Logout <LucideLogOut className="hover:text-red-500 " size={16}/>
-        </button>
-      </div>
+            <p className="text-sm text-muted-foreground">Leave Management</p>
+          </div>
 
-    </aside>
+          {/* Close button - mobile only */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+            aria-label="Close navigation"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex-1">
+          <SideLink role={role} onNavigate={onClose} />
+        </div>
+
+        {/* Logout */}
+        <div className="border-t pt-4">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="group flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <span>Logout</span>
+
+            <LucideLogOut
+              size={16}
+              className="transition-colors group-hover:text-red-500"
+            />
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

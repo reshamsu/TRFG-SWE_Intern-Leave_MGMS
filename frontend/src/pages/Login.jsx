@@ -10,13 +10,58 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Field } from "@/components/ui/field";
 
 function Login() {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: formData.get("email"),
+          password: formData.get("password"),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid Email or Password");
+      }
+
+      // Stores current user logged in for this brower session
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+
+      // Navigate based on the role returned by backend
+      navigate(
+        data.user.role === "admin" ? "/admin/dashboard" : "/employee/dashboard",
+      );
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-red-50">
       <section className="flex min-h-screen items-center justify-center px-4">
         <Card className="w-full max-w-md rounded-3xl shadow-xl">
-          <CardHeader className="space-y-2 text-center">
+          <CardHeader className="text-center">
             <CardTitle className="text-2xl font-semibold">
               Welcome Back!
             </CardTitle>
@@ -27,26 +72,30 @@ function Login() {
           </CardHeader>
 
           <CardContent>
-            <form className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email">
-                  Email
-                </Label>
+            <form className="space-y-5" onSubmit={handleLogin}>
+              
+              {error && (
+                <p className="text-sm text-center text-red-600 px-4 py-2 bg-red-100 border border-red-200 rounded-lg">
+                  {error}
+                </p>
+              )}
+
+              <Field>
+                <Label htmlFor="email">Email</Label>
 
                 <Input
                   id="email"
+                  name="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="john@example.com"
                   autoComplete="email"
                   required
                 />
-              </div>
+              </Field>
 
-              <div className="space-y-2">
+              <Field>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">
-                    Password
-                  </Label>
+                  <Label htmlFor="password">Password</Label>
 
                   <button
                     type="button"
@@ -58,12 +107,13 @@ function Login() {
 
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   placeholder="••••••••"
                   autoComplete="current-password"
                   required
                 />
-              </div>
+              </Field>
 
               <div className="flex items-center gap-2">
                 <Checkbox id="remember" />
@@ -78,11 +128,22 @@ function Login() {
 
               <Button
                 type="submit"
-                className="w-full"
+                disabled={isLoading}
+                className="w-full rounded-full"
               >
-                Sign In
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
+
+            <p className="text-center text-sm text-muted-foreground">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                Sign Up
+              </Link>
+            </p>
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               You agree to the terms and conditions of LMGMS.

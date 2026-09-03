@@ -4,6 +4,27 @@ import {
   approveLeave,
   rejectLeave,
 } from "../services/leaveServer.js";
+import {
+  getAllUsers,
+  approveUser,
+  rejectUser,
+} from "../services/userServer.js";
+
+export async function handleGETAllUsers(req, res) {
+  try {
+    const userRequests = await getAllUsers();
+
+    return res.status(200).json({
+      userRequests,
+    });
+  } catch (error) {
+    console.error("Fetch all users error:", error);
+
+    return res.status(500).json({
+      error: "Could not fetch all user requests",
+    });
+  }
+}
 
 export async function handleGETAllLeaves(req, res) {
   try {
@@ -17,6 +38,56 @@ export async function handleGETAllLeaves(req, res) {
 
     return res.status(500).json({
       error: "Could not fetch all leave requests",
+    });
+  }
+}
+
+export async function handleApproveUser(req, res) {
+  try {
+    const { id } = req.params;
+
+    const user = await approveUser(id);
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found.",
+      });
+    }
+
+    return res.status(200).json({
+      message: "User approved successfully.",
+      user,
+    });
+  } catch (error) {
+    console.error("Approve user error:", error);
+
+    return res.status(500).json({
+      error: "Could not approve user.",
+    });
+  }
+}
+
+export async function handleRejectUser(req, res) {
+  try {
+    const { id } = req.params;
+
+    const user = await rejectUser(id);
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found.",
+      });
+    }
+
+    return res.status(200).json({
+      message: "User rejected successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Reject user error:", error);
+
+    return res.status(500).json({
+      error: "Could not reject user",
     });
   }
 }

@@ -15,9 +15,9 @@ export async function handleLogin(req, res) {
       });
     }
 
-    // Defining result by checking db selector 
+    // Defining result by checking db selector
     const result = await pool.query(
-      "SELECT id, name, email, password, role FROM public.users WHERE email = $1 LIMIT 1",
+      "SELECT id, name, email, password, role, status FROM public.users WHERE email = $1 LIMIT 1",
       [email],
     );
 
@@ -27,7 +27,7 @@ export async function handleLogin(req, res) {
         error: "Invalid email or password",
       });
     }
- 
+
     // Defining user from db
     const user = result.rows[0];
     // Defining hashPassword using bcrypt password matches the entered passowrd
@@ -40,6 +40,13 @@ export async function handleLogin(req, res) {
       });
     }
 
+    if (user.status === "pending") {
+      return res.status(403).json({
+        error:
+          "Your registration is still pending approval. Please wait until your account is approved.",
+      });
+    }
+
     // Returns if email and password is valid success message is shown
     return res.status(200).json({
       message: "Login successful",
@@ -47,6 +54,7 @@ export async function handleLogin(req, res) {
         id: user.id,
         email: user.email,
         role: user.role,
+        status: user.status,
       },
     });
     // If email or password failed error response message gives "Login failed"
@@ -63,33 +71,34 @@ export async function handleRegister(req, res) {
   //   console.log("Handle Auth Register is working!");
 
   try {
-    // Definig email and password to send request 
+    // Definig email and password to send request
     const { name, email, password } = req.body ?? {};
 
     // Check if email or password is entered before submitting
     if (!name || !email || !password) {
-        return res.status(400).json({
-            error: "Your Name, Email and password are required",
-        });
+      return res.status(400).json({
+        error: "Your Name, Email and password are required",
+      });
     }
 
     // Checking if passowrd follows the requirements of at least 6 characters
     if (password.length < 6) {
-        return res.status (400).json ({
-            error: "Password must be at least 6 characters",
-        });
+      return res.status(400).json({
+        error: "Password must be at least 6 characters",
+      });
     }
 
     // Defining "existingUser" from the DB table users
     const existingUser = await pool.query(
-        "SELECT id FROM public.users WHERE email = $1", [email],
+      "SELECT id FROM public.users WHERE email = $1",
+      [email],
     );
 
     // Check if user is existing in the table
     if (existingUser.rows.length > 0) {
-        return res.status (409).json({
-            error: "User already exists.",
-        })
+      return res.status(409).json({
+        error: "User already exists.",
+      });
     }
 
     // Defining hashPassword using bcrypt password package to encrypt password when creation
@@ -97,37 +106,35 @@ export async function handleRegister(req, res) {
 
     // Passes the result into table if user doesnt exist
     const result = await pool.query(
-        `INSERT INTO public.users (name, email, password, role) 
-        VALUES ($1, $2, $3, $4) 
-        RETURNING id, name, email, role`, 
-        [name, email, hashedPassowrd, "employee"],
+      `INSERT INTO public.users (name, email, password, role, status) 
+        VALUES ($1, $2, $3, $4, $5) 
+        RETURNING id, name, email, role, status`,
+      [name, email, hashedPassowrd, "employee", "pending"],
     );
 
     // if user doesnt exist new user is passed to table with success message
-    return res.status (201).json({
-        message: "Registration Successful",
-        user: result.rows[0],
+    return res.status(201).json({
+      message: "Registration Successful",
+      user: result.rows[0],
     });
 
     // if user exists or server down, response sends error message "Failed"
   } catch (error) {
     console.error("Registration Failed", error);
     return res.status(500).json({
-        error: "Registration Error",
+      error: "Registration Error",
     });
   }
 }
 
-
-
 // Temporary Placement for now until JWT is established
 // export async function handleUsers(req, res) {
 //   //   console.log("Handle Auth Me is working!");
-  
+
 //   try {
 //     // Defining the result by selecting users in order
 //     const result = await pool.query(
-//       "SELECT id, name, email FROM public.users WHERE email = $1 ORDER BY id LIMIT 1", 
+//       "SELECT id, name, email FROM public.users WHERE email = $1 ORDER BY id LIMIT 1",
 //     );
 
 //     // If users are available to display all of them

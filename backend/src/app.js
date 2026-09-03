@@ -1,22 +1,21 @@
 import express from "express";
 import cors from "cors";
 
-import {
-  handleRegister,
-  handleLogin,
-  // handleUsers,
-} from "./routes/authRoutes.js";
-// import { handleLeavePOST, handleLeaveMy } from "./routes/leaveRoutes.js";
+import { handleRegister, handleLogin } from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
 // import pool from "./config/db.js";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 // Public authentication routes
 app.post("/api/auth/login", handleLogin);
@@ -28,7 +27,6 @@ app.use("/api/admin", adminRoutes);
 
 // Public temp to be protected with auth middleware
 // app.get("/api/users", handleUsers);
-
 
 // TEST RUNTIME
 // app.get("/api/leave", (req, res) => {

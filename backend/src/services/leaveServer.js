@@ -40,7 +40,7 @@ export async function createLeave({
   return result.rows[0];
 }
 
-export async function findLeavesByEmployee(employeeId) {
+export async function findLeaves(employeeId) {
   const result = await pool.query(
     `SELECT
         id,
@@ -75,7 +75,7 @@ export async function approveLeave(id, approvedBy) {
        approved_at = CURRENT_TIMESTAMP,
        updated_at = CURRENT_TIMESTAMP
      WHERE id = $2
-       AND status = 'pending'
+       AND status IN ('pending')
      RETURNING *`,
     [approvedBy, id],
   );
@@ -92,7 +92,7 @@ export async function rejectLeave(id, approvedBy, rejectionReason) {
        rejection_reason = $2,
        updated_at = CURRENT_TIMESTAMP
      WHERE id = $3
-       AND status = 'pending'
+       AND status IN ('pending', 'appr
      RETURNING *`,
     [approvedBy, rejectionReason, id],
   );
@@ -116,8 +116,39 @@ export async function getAllLeaves() {
       created_at,
       updated_at
      FROM public.leave_requests
-     ORDER BY created_at DESC`,
+     ORDER BY created_at ASC`,
   );
 
   return result.rows;
+}
+
+export async function cancelLeave(id) {
+  const result = await pool.query(
+    `UPDATE public.leave_requests
+     SET status = 'cancelled',
+         updated_at = CURRENT_TIMESTAMP
+     WHERE id = $1
+       AND status IN ('pending', 'approved')
+     RETURNING *`,
+    [id],
+  );
+
+  return result.rows[0] ?? null;
+}
+
+export async function changeLeave(id, reason, startDate, endDate) {
+  const result = await pool.query(
+    `UPDATE public.leave_requests
+     SET status = 'pending',
+     reason = $2,
+     start_date = $3,
+     end_date = $4,
+         updated_at = CURRENT_TIMESTAMP
+     WHERE id = $1
+       AND status = 'rejected'
+     RETURNING *`,
+    [id, reason, startDate, endDate],
+  );
+
+  return result.rows[0] ?? null;
 }
