@@ -28,9 +28,18 @@ export default function UserRequests() {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch("http://localhost:8000/api/admin/users", {
+        const token = sessionStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in");
+        }
+
+        const response = await fetch("http://localhost:8000/api/v1/admin/users", {
           method: "GET",
-          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const data = await response.json();
@@ -38,7 +47,7 @@ export default function UserRequests() {
         if (!response.ok) {
           throw new Error(data.message || "Could not fetch all users");
         }
-        setUsers(Array.isArray(data.userRequests) ? data.userRequests : []);
+        setUsers(Array.isArray(data) ? data : []);
       } catch (error) {
         console.log("Error here", error);
         setError(error.message);
@@ -70,17 +79,23 @@ export default function UserRequests() {
       setIsActionLoading(true);
       setError("");
 
+      const token = sessionStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No authentication token found. Please log in");
+      }
+
       const response = await fetch(
-        `http://localhost:8000/api/admin/leaves/${userId}/approve`,
+        `http://localhost:8000/api/v1/admin/user/${userId}/approve`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          credentials: "include",
-          body: JSON.stringify({
-            approvedBy: 1,
-          }),
+          // body: JSON.stringify({
+          //   approvedBy: 1,
+          // }),
         },
       );
 
@@ -90,7 +105,6 @@ export default function UserRequests() {
         throw new Error(data.message || "Could not approve leave request.");
       }
 
-      // Update the table immediately
       setUsers((currentLeaves) =>
         currentLeaves.map((user) =>
           user.id === userId
@@ -125,32 +139,26 @@ export default function UserRequests() {
       return;
     }
 
-    if (selectedUsers.length > 1) {
-      setError("Please select only one leave request.");
-      return;
-    }
-
     const userId = selectedUsers[0];
-
-    // const rejectionReason = window.prompt(
-    //   "Enter the reason for rejecting this leave request:",
-    // );
 
     try {
       setIsActionLoading(true);
       setError("");
 
+      const token = sessionStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No authentication token found. Please log in");
+      }
+
       const response = await fetch(
-        `http://localhost:8000/api/admin/leaves/${userId}/reject`,
+        `http://localhost:8000/api/v1/admin/user/${userId}/reject`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          credentials: "include",
-          body: JSON.stringify({
-            approvedBy: 1,
-          }),
         },
       );
 
@@ -209,30 +217,9 @@ export default function UserRequests() {
 
   return (
     <div className="min-h-screen bg-red-50">
-      <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold">All Users</h2>
-
-          <span className="flex gap-3">
-            <Button
-              size="sm"
-              onClick={handleApprove}
-              disabled={selectedUsers.length !== 1 || isActionLoading}
-              className="rounded-full px-4 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <Check size={16} />{" "}
-               <span className="hidden md:flex">{isActionLoading ? "Processing..." : "Approve"}</span>
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={handleReject}
-              disabled={selectedUsers.length !== 1 || isActionLoading}
-              className="rounded-full px-4 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <X size={16} /> <span className="hidden md:flex"> Reject</span>
-            </Button>
-          </span>
         </div>
 
         <div className="mt-4">
@@ -251,18 +238,19 @@ export default function UserRequests() {
                       aria-label="Select all users"
                     />
                   </TableHead>
-                  <TableHead className="w-[140px]">User ID</TableHead>
+                  <TableHead className="w-[90px]">User ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right font-bold">Action</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       <p>No users found.</p>
                     </TableCell>
                   </TableRow>
@@ -285,7 +273,7 @@ export default function UserRequests() {
 
                       <TableCell className="capitalize">{user.role}</TableCell>
 
-                      <TableCell className="text-right font-semibold capitalize">
+                      <TableCell className="font-semibold capitalize">
                         <Badge
                           variant={
                             user.status === "approved"
@@ -308,6 +296,36 @@ export default function UserRequests() {
                         >
                           {user.status}
                         </Badge>
+                      </TableCell>
+
+                      <TableCell className="flex justify-end font-semibold capitalize">
+                        <span className="flex gap-3">
+                          <Button
+                            size="xs"
+                            onClick={handleApprove}
+                            disabled={
+                              selectedUsers.length !== 1 || isActionLoading
+                            }
+                            className="success rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                          >
+                            <Check size={16} />{" "}
+                            <span className="hidden md:flex">
+                              {isActionLoading ? "Processing..." : "Approve"}
+                            </span>
+                          </Button>
+                          <Button
+                            size="xs"
+                            variant="destructive"
+                            onClick={handleReject}
+                            disabled={
+                              selectedUsers.length !== 1 || isActionLoading
+                            }
+                            className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                          >
+                            <X size={16} />{" "}
+                            <span className="hidden md:flex"> Reject</span>
+                          </Button>
+                        </span>
                       </TableCell>
                     </TableRow>
                   ))

@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
+// import Register from "./pages/Register";
+
 import NotFound from "./pages/NotFound";
 
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -24,20 +25,20 @@ function App() {
 
           {/* Authentication */}
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* <Route path="/register" element={<Register />} /> */}
 
           {/* Employee */}
           <Route element={<DashboardLayout role="employee" />}>
-            <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
-            <Route path="/employee/leave/new" element={<ApplyLeave />} />
-            <Route path="/employee/leave/history" element={<LeaveHistory />} />
+            <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
+            <Route path="/dashboard/employee/leave/new" element={<ApplyLeave />} />
+            <Route path="/dashboard/employee/leave/history" element={<LeaveHistory />} />
           </Route>
 
           {/* Admin */}
           <Route element={<DashboardLayout role="admin" />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/leaves" element={<LeaveRequests />} />
-            <Route path="/admin/users" element={<UserRequests />} />
+            <Route path="/dashboard/admin" element={<AdminDashboard />} />
+            <Route path="/dashboard/admin/leaves" element={<LeaveRequests />} />
+            <Route path="/dashboard/admin/users" element={<UserRequests />} />
           </Route>
 
           {/* Unknown URL */}

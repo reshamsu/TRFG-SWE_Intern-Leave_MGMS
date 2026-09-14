@@ -13,11 +13,28 @@ import {
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
-
-import { Check, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Check, LucidePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// import { Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
@@ -25,6 +42,14 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [DialogOpen, setDialogOpen] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "User",
+  });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -32,17 +57,35 @@ export default function Dashboard() {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch("http://localhost:8000/api/admin/users", {
+        const sessionData = sessionStorage.getItem("token");
+        if (!sessionData) {
+          throw new Error("No authentication token found. Please log in");
+        }
+
+        let token = sessionData;
+        try {
+          const parsed = JSON.parse(sessionData);
+          if (parsed && parsed.token) token = parsed.token;
+        } catch (error) {
+          console.error("Approval error:", error);
+        }
+
+        const response = await fetch("http://localhost:8000/api/v1/admin/users", {
           method: "GET",
-          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const data = await response.json();
 
+        // console.log("👉 ACTUAL BACKEND RESPONSE DATA:", data);
+
         if (!response.ok) {
           throw new Error(data.message || "Could not fetch all user requests");
         }
-        setUsers(Array.isArray(data.userRequests) ? data.userRequests : []);
+        setUsers(Array.isArray(data) ? data : []);
       } catch (error) {
         console.log("Error here", error);
         setError(error.message);
@@ -53,7 +96,10 @@ export default function Dashboard() {
     fetchUsers();
   }, []);
 
-  const pendingUsers = users.filter((user) => user.status === "pending");
+  // console.log("CURRENT USERS STATE:", users);
+  const pendingUsers = users.filter(
+    (user) => user.status?.toLowerCase() === "pending",
+  );
 
   if (isLoading) {
     return <p>Loading user requests...</p>;
@@ -62,6 +108,51 @@ export default function Dashboard() {
   if (error) {
     return <p>{error}</p>;
   }
+
+  const handleRegisterSubmit = async () => {
+    try {
+      setIsActionLoading(true);
+      setError("");
+
+      const sessionData = sessionStorage.getItem("token");
+      let token = sessionData;
+      try {
+        const parsed = JSON.parse(sessionData || "");
+        if (parsed && parsed.token) {
+          token = parsed.token;
+        }
+      } catch (error) {
+        console.warn("Token parsing skipped or failed:", error);
+      }
+
+      const response = await fetch(`http://localhost:8000/api/v1/admin/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Could not register new user.");
+      }
+
+      toast.success("User registered successfully!");
+      setDialogOpen(false);
+      setFormData({ name: "", email: "", password: "", role: "User" }); //
+    } catch (error) {
+      console.error("Register error:", error);
+
+      toast.error(error.message || "Something went wrong", {
+        description: error.message,
+      });
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
 
   const handleApprove = async () => {
     if (selectedUsers.length !== 1) {
@@ -75,11 +166,20 @@ export default function Dashboard() {
       setIsActionLoading(true);
       setError("");
 
+      const token = sessionStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No authentication token found. Please log in");
+      }
+
       const response = await fetch(
-        `http://localhost:8000/api/admin/users/${userId}/approve`,
+        `http://localhost:8000/api/v1/admin/user/${userId}/approve`,
         {
-          method: "PUT",
-          credentials: "include",
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
 
@@ -89,7 +189,6 @@ export default function Dashboard() {
         throw new Error(data.message || "Could not approve leave request.");
       }
 
-      // Update the table immediately
       setUsers((currentUsers) =>
         currentUsers.filter((user) => user.id !== userId),
       );
@@ -121,11 +220,20 @@ export default function Dashboard() {
       setIsActionLoading(true);
       setError("");
 
+      const token = sessionStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No authentication token found. Please log in");
+      }
+
       const response = await fetch(
-        `http://localhost:8000/api/admin/users/${userId}/reject`,
+        `http://localhost:8000/api/v1/admin/user/${userId}/reject`,
         {
-          method: "PUT",
-          credentials: "include",
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
 
@@ -165,19 +273,24 @@ export default function Dashboard() {
 
   const toggleAllUsers = () => {
     if (selectedUsers.length === users.length) {
-      // Unselect all
       setSelectedUsers([]);
     } else {
-      // Select all
       setSelectedUsers(users.map((users) => users.id));
     }
   };
 
   return (
     <div className="min-h-screen bg-red-50">
-      <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 2xl:px-0 flex flex-col">
         <div className="flex justify-between">
           <h3 className="text-lg font-semibold">Welcome Admin!</h3>
+          <Button
+            onClick={() => setDialogOpen(true)}
+            size="sm"
+            className="rounded-full px-4 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+          >
+            <LucidePlus size={16} /> New User
+          </Button>
         </div>
 
         <div className="mt-4">
@@ -216,27 +329,6 @@ export default function Dashboard() {
             <div className="flex flex-col items-start justify-between">
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-sm font-semibold">Recent User Requests</h2>
-
-                <span className="flex gap-2">
-                  <Button
-                    size="xs"
-                    onClick={handleApprove}
-                    disabled={selectedUsers.length !== 1 || isActionLoading}
-                    className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-                  >
-                    <Check size={16} />{" "}
-                    {isActionLoading ? "Processing..." : "Approve"}
-                  </Button>
-                  <Button
-                    size="xs"
-                    onClick={handleReject}
-                    disabled={selectedUsers.length !== 1 || isActionLoading}
-                    variant="destructive"
-                    className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-                  >
-                    <X size={16} /> Reject
-                  </Button>
-                </span>
               </div>
 
               <Card className="mt-3 px-6 gap-2 w-full">
@@ -257,7 +349,10 @@ export default function Dashboard() {
                       <TableHead>User ID</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead className="text-right">Role</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead className="font-bold text-right">
+                        Action
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -285,7 +380,7 @@ export default function Dashboard() {
 
                           <TableCell>{user.email}</TableCell>
 
-                          <TableCell className="text-right font-semibold capitalize">
+                          <TableCell className="font-semibold capitalize">
                             <Badge
                               variant={
                                 user.status === "approved"
@@ -309,6 +404,35 @@ export default function Dashboard() {
                               {user.status}
                             </Badge>
                           </TableCell>
+
+                          <TableCell className="flex justify-end font-bold">
+                            {" "}
+                            <span className="flex gap-2">
+                              <Button
+                                size="xs"
+                                variant="secondary"
+                                onClick={handleApprove}
+                                disabled={
+                                  selectedUsers.length !== 1 || isActionLoading
+                                }
+                                className="success rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                              >
+                                <Check size={16} />{" "}
+                                {isActionLoading ? "Processing..." : "Approve"}
+                              </Button>
+                              <Button
+                                size="xs"
+                                onClick={handleReject}
+                                disabled={
+                                  selectedUsers.length !== 1 || isActionLoading
+                                }
+                                variant="destructive"
+                                className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                              >
+                                <X size={16} /> Reject
+                              </Button>
+                            </span>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
@@ -328,6 +452,100 @@ export default function Dashboard() {
                 </CardDescription>
               </Card>
             </div>
+
+            <Dialog open={DialogOpen} onOpenChange={setDialogOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Register New User</DialogTitle>
+                  <DialogDescription>
+                    Create a new user account profile here. Click save when
+                    you're done.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      placeholder="John Doe"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">Set Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2 m-0">
+                    <Label htmlFor="role">Assign Role</Label>
+                    <Select
+                      value={formData.role}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, role: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Roles</SelectLabel>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <DialogFooter className="pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-full px-3"
+                      onClick={() => setDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="rounded-full px-3"
+                      disabled={isActionLoading}
+                    >
+                      {isActionLoading ? "Registering..." : "Save User"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </section>

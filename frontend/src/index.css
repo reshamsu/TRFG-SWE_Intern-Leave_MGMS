@@ -133,7 +133,11 @@
   Button {
     cursor: pointer;
   }
+  Button:hover {
+    border: none;
+  }
 }
+
 .primary {
   color: #0000ff;
   background-color: #eaeaff;

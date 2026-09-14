@@ -29,31 +29,26 @@ export default function Dashboard() {
         setIsLoading(true);
         setError("");
 
-        const storedUser = sessionStorage.getItem("user");
+        const token = sessionStorage.getItem("token");
 
-        if (!storedUser) {
-          throw new Error("User session not found.");
+        if (!token) {
+          throw new Error("No authentication token found. Please log in");
         }
 
-        const user = JSON.parse(storedUser);
-        const employee_id = user.id;
-
-        console.log("Frontend employee ID:", employee_id);
-
-        const response = await fetch(
-          `http://localhost:8000/api/leaves/my?employee_id=${employee_id}`,
-          {
-            method: "GET",
-            credentials: "include",
+        const response = await fetch(`http://localhost:8000/api/v1/leaves/my`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         const data = await response.json();
 
         if (!response.ok) {
           throw new Error(data.message || "Could not fetch all leave requests");
         }
-        setLeaves(Array.isArray(data.leaveRequests) ? data.leaveRequests : []);
+        setLeaves(Array.isArray(data.history) ? data.history : []);
       } catch (error) {
         console.log("Error here", error);
         setError(error.message);
@@ -83,7 +78,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-red-50">
-      <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 2xl:px-0 flex flex-col">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold">Welcome Empl!</h2>
 
@@ -153,7 +148,7 @@ export default function Dashboard() {
                     ) : (
                       leaves.map((leave) => (
                         <TableRow key={leave.id}>
-                          <TableCell>{leave.employee_id}</TableCell>
+                          <TableCell>{leave.id}</TableCell>
 
                           <TableCell>{leave.reason}</TableCell>
 
@@ -164,7 +159,7 @@ export default function Dashboard() {
                           </TableCell>
 
                           <TableCell className="text-right font-semibold capitalize">
-                             <Badge
+                            <Badge
                               variant={
                                 leave.status === "approved"
                                   ? "secondary"
@@ -174,14 +169,14 @@ export default function Dashboard() {
                               }
                               className={
                                 leave.status === "pending"
-                                ? "primary"
-                                : leave.status === "approved"
-                                  ? "success"
-                                  : leave.status === "rejected"
-                                    ? "danger"
-                                    : leave.status === "cancelled"
-                                      ? "caution"
-                                      : ""
+                                  ? "primary"
+                                  : leave.status === "approved"
+                                    ? "success"
+                                    : leave.status === "rejected"
+                                      ? "danger"
+                                      : leave.status === "cancelled"
+                                        ? "caution"
+                                        : ""
                               }
                             >
                               {leave.status}
