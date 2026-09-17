@@ -4,9 +4,13 @@ import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({ role, isOpen, onClose }) {
   const navigate = useNavigate();
-  
+
   const handleLogout = () => {
-    sessionStorage.removeItem("user");
+    // sessionStorage.removeItem("token");
+    // sessionStorage.removeItem("userName");
+    // sessionStorage.removeItem("userRole");
+
+    sessionStorage.clear();
 
     navigate("/login", { replace: true });
   };
@@ -38,7 +42,9 @@ export default function Sidebar({ role, isOpen, onClose }) {
           <div>
             <h3 className="text-xl font-semibold">Leave Mgms</h3>
 
-            <p className="text-sm text-muted-foreground">Leave Management System</p>
+            <p className="text-sm text-muted-foreground">
+              Leave Management System
+            </p>
           </div>
 
           {/* Close button - mobile only */}

@@ -13,7 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Field } from "@/components/ui/field";
 
-export default function Register() {
+export default function UserRegister() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function Register() {
     const formData = new FormData(event.currentTarget);
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/register", {
+      const response = await fetch("http://localhost:8000/api/v1/admin/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -116,7 +116,7 @@ export default function Register() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-full primary"
+                className="w-full rounded-full"
               >
                 {isLoading ? "Registering..." : "Sign Up"}
               </Button>

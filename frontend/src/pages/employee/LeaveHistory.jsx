@@ -58,32 +58,26 @@ export default function LeaveHistory() {
         setIsLoading(true);
         setError("");
 
-        const storedUser = sessionStorage.getItem("user");
+        const token = sessionStorage.getItem("token");
 
-        if (!storedUser) {
-          throw new Error("User session not found.");
+        if (!token) {
+          throw new Error("No authentication token found. Please log in");
         }
 
-        const user = JSON.parse(storedUser);
-        const employee_id = user.id;
-
-        const response = await fetch(
-          `http://localhost:8000/api/leaves/my?employee_id=${employee_id}`,
-          {
-            method: "GET",
-            credentials: "include",
+        const response = await fetch(`http://localhost:8000/api/v1/leaves/my`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         const data = await response.json();
-
-        console.log("Leave API response:", data);
 
         if (!response.ok) {
           throw new Error(data.error || "Could not fetch leave requests");
         }
-
-        setLeaves(Array.isArray(data.leaveRequests) ? data.leaveRequests : []);
+        setLeaves(Array.isArray(data.history) ? data.history : []);
       } catch (error) {
         console.error("Fetch leaves error:", error);
         setError(error.message);
@@ -120,7 +114,7 @@ export default function LeaveHistory() {
       setError("");
 
       const response = await fetch(
-        `http://localhost:8000/api/leaves/${leaveId}/cancel`,
+        `http://localhost:8000/api/v1/leaves/${leaveId}/cancel`,
         {
           method: "PUT",
           credentials: "include",
@@ -175,7 +169,7 @@ export default function LeaveHistory() {
       setError("");
 
       const response = await fetch(
-        `http://localhost:8000/api/leaves/${leaveId}/change`,
+        `http://localhost:8000/api/v1/leaves/${leaveId}/change`,
         {
           method: "PUT",
           headers: {
@@ -254,43 +248,9 @@ export default function LeaveHistory() {
 
   return (
     <div className="min-h-screen bg-red-50">
-      <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
         <div className="flex justify-between">
           <h2 className="text-lg lg:text-xl font-semibold">View History</h2>
-
-          <span className="flex gap-3">
-            <Button
-              size="sm"
-              onClick={() => {
-                if (selectedLeaves.length === 0) {
-                  setError("Please select a leave request.");
-                  return;
-                }
-
-                if (selectedLeaves.length > 1) {
-                  setError("Please select only one leave request.");
-                  return;
-                }
-
-                setChangeReason("");
-                setDialogOpen(true);
-              }}
-              disabled={selectedLeaves.length !== 1 || isActionLoading}
-              className="rounded-full px-4 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <Pen size={14} />{" "}
-             <span className="hidden md:flex"> {isActionLoading ? "Processing..." : "Request Change"}</span>
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleCancel}
-              variant="outline"
-              disabled={selectedLeaves.length !== 1 || isActionLoading}
-              className="rounded-full px-4 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <X size={14} />  <span className="hidden md:flex"> {isActionLoading ? "Cancelling..." : "Cancel"} </span>
-            </Button>
-          </span>
         </div>
 
         <div className="mt-4">
@@ -322,12 +282,13 @@ export default function LeaveHistory() {
                       aria-label="Select all leave requests"
                     />
                   </TableHead>
-                  <TableHead className="lg:w-[120px]">Empl ID</TableHead>
+                  <TableHead className="lg:w-[90px]">Empl ID</TableHead>
                   <TableHead>Reason</TableHead>
                   <TableHead>Leave Issued</TableHead>
                   <TableHead>Total Days</TableHead>
                   <TableHead>Reason for Rejection</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right font-bold">Action</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -349,7 +310,7 @@ export default function LeaveHistory() {
                         />
                       </TableCell>
 
-                      <TableCell>{leave.employee_id}</TableCell>
+                      <TableCell>{leave.id}</TableCell>
 
                       <TableCell>{leave.reason}</TableCell>
 
@@ -363,7 +324,7 @@ export default function LeaveHistory() {
 
                       <TableCell>{leave.rejection_reason}</TableCell>
 
-                      <TableCell className="text-right font-semibold capitalize">
+                      <TableCell className="font-semibold capitalize">
                         <Badge
                           variant={
                             leave.status === "approved"
@@ -386,6 +347,57 @@ export default function LeaveHistory() {
                         >
                           {leave.status}
                         </Badge>
+                      </TableCell>
+
+                      <TableCell className="flex justify-end font-semibold capitalize">
+                        <span className="flex gap-2">
+                          <Button
+                            size="xs"
+                            onClick={() => {
+                              if (selectedLeaves.length === 0) {
+                                setError("Please select a leave request.");
+                                return;
+                              }
+
+                              if (selectedLeaves.length > 1) {
+                                setError(
+                                  "Please select only one leave request.",
+                                );
+                                return;
+                              }
+
+                              setChangeReason("");
+                              setDialogOpen(true);
+                            }}
+                            disabled={
+                              selectedLeaves.length !== 1 || isActionLoading
+                            }
+                            className="rounded-full px-3 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                          >
+                            <Pen size={14} />{" "}
+                            <span className="hidden md:flex">
+                              {" "}
+                              {isActionLoading ? "Processing..." : "Change"}
+                            </span>
+                          </Button>
+                          <Button
+                            size="xs"
+                            onClick={handleCancel}
+                            variant="outline"
+                            disabled={
+                              selectedLeaves.length !== 1 || isActionLoading
+                            }
+                            className="rounded-full px-3 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                          >
+                            <X size={14} />{" "}
+                            <span className="hidden md:flex">
+                              {" "}
+                              {isActionLoading
+                                ? "Cancelling..."
+                                : "Cancel"}{" "}
+                            </span>
+                          </Button>
+                        </span>
                       </TableCell>
                     </TableRow>
                   ))

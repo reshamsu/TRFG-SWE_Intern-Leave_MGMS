@@ -11,17 +11,17 @@ import {
 const employeeLinks = [
   {
     label: "Dashboard",
-    to: "/employee/dashboard",
+    to: "/dashboard/employee",
     icon: LayoutDashboard,
   },
   {
     label: "Apply for Leave",
-    to: "/employee/leave/new",
+    to: "/dashboard/employee/leave/new",
     icon: FilePlus2,
   },
   {
     label: "My Leave History",
-    to: "/employee/leave/history",
+    to: "dashboard/employee/leave/history",
     icon: ClipboardList,
   },
 ];
@@ -29,17 +29,17 @@ const employeeLinks = [
 const adminLinks = [
   {
     label: "Dashboard",
-    to: "/admin/dashboard",
+    to: "/dashboard/admin",
     icon: LayoutDashboard,
   },
   {
     label: "Leave Requests",
-    to: "/admin/leaves",
+    to: "/dashboard/admin/leaves",
     icon: ClipboardList,
   },
     {
     label: "All Users",
-    to: "/admin/users",
+    to: "/dashboard/admin/users",
     icon: User,
   },
 ];
@@ -59,6 +59,7 @@ export default function SideLink({ role }) {
           <NavLink
             key={link.to}
             to={link.to}
+            end={link.to === "/dashboard/admin" || link.to === "/dashboard/employee"}
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
                 isActive
