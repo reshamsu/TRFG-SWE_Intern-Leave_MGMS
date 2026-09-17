@@ -7,6 +7,21 @@ import { useState } from "react";
 export default function DashboardLayout({ role }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+<<<<<<< Updated upstream
+=======
+  const token = sessionStorage.getItem("token");
+  const currentUserRole = sessionStorage.getItem("userRole");
+  const currentUserName = sessionStorage.getItem("userName");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (currentUserRole?.toLowerCase() !== role?.toLowerCase()) {
+    return <Navigate to="/login" replace />;
+  }
+
+>>>>>>> Stashed changes
   const closeSidebar = () => {
     setSidebarOpen(false);
   };
@@ -25,11 +40,12 @@ export default function DashboardLayout({ role }) {
               className="lg:hidden"
             />
 
-            <h1 className="text-lg xl:text-xl font-semibold">
+            <h1 className="text-lg font-semibold">
               {role === "admin" ? "Admin Panel" : "Employee Panel"}
             </h1>
           </span>
 
+<<<<<<< Updated upstream
           <span className="flex items-center gap-2">
             <Button
               size="sm"
@@ -40,14 +56,21 @@ export default function DashboardLayout({ role }) {
               <Search size={14} />
             </Button>
 
+=======
+          <span className="flex items-center gap-6">
+>>>>>>> Stashed changes
             <Button
               size="sm"
               onClick={0}
               variant="outline"
-              className="rounded-full px-3 py-5 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+              className="rounded-full px-2.5 py-4.5 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
             >
               <Bell size={20} />
             </Button>
+            <div className="text-right">
+              <h4 className="text-sm font-semibold text-gray-700">{currentUserName || "User"}</h4>
+              <p className="text-xs capitalize text-gray-400 font-medium">{role}</p>
+            </div>
           </span>
         </header>
 

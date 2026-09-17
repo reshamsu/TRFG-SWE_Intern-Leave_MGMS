@@ -1,6 +1,11 @@
 import { LucideLogOut, X } from "lucide-react";
 import SideLink from "../constants/SideLinks";
 import { useNavigate } from "react-router-dom";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 
 export default function Sidebar({ role, isOpen, onClose }) {
   const navigate = useNavigate();
@@ -23,7 +28,7 @@ export default function Sidebar({ role, isOpen, onClose }) {
 
       <aside
         className={`
-          fixed left-0 top-0 z-50
+          fixed gap-4 left-0 top-0 z-50
           flex h-screen w-64 flex-col
           border-r bg-white p-5 shadow-md
           transition-transform duration-300 ease-in-out
@@ -34,11 +39,17 @@ export default function Sidebar({ role, isOpen, onClose }) {
         `}
       >
         {/* Brand */}
-        <div className="mb-8 flex items-start justify-between">
+        <div className="mb-4 flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-semibold">Leave Mgms</h3>
+            <h3 className="text-ls font-semibold">Leave Mgms</h3>
 
+<<<<<<< Updated upstream
             <p className="text-sm text-muted-foreground">Leave Management System</p>
+=======
+            <p className="text-xs text-muted-foreground">
+              Leave Management System
+            </p>
+>>>>>>> Stashed changes
           </div>
 
           {/* Close button - mobile only */}
@@ -51,6 +62,19 @@ export default function Sidebar({ role, isOpen, onClose }) {
             <X size={20} />
           </button>
         </div>
+
+        <Field>
+          <ButtonGroup>
+            <Input
+              id="input-button-group"
+              placeholder="Type to search..."
+              className="px-3 text-sm"
+            />
+            <Button>
+              <Search />
+            </Button>
+          </ButtonGroup>
+        </Field>
 
         {/* Navigation */}
         <div className="flex-1">
@@ -68,7 +92,7 @@ export default function Sidebar({ role, isOpen, onClose }) {
 
             <LucideLogOut
               size={16}
-              className="transition-colors group-hover:text-red-500"
+              className="transition-colors text-red-500"
             />
           </button>
         </div>

@@ -8,11 +8,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X } from "lucide-react";
+import { X, Pen } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function UserRequests() {
@@ -21,6 +40,15 @@ export default function UserRequests() {
   const [error, setError] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [DialogOpen, setDialogOpen] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "employee",
+  });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -28,7 +56,17 @@ export default function UserRequests() {
         setIsLoading(true);
         setError("");
 
+<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
         const response = await fetch("http://localhost:8000/api/admin/users", {
+=======
+        const token = sessionStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in");
+        }
+
+        const response = await fetch("http://localhost:8000/api/v1/users/all", {
+>>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
           method: "GET",
           credentials: "include",
         });
@@ -50,37 +88,47 @@ export default function UserRequests() {
     fetchUsers();
   }, []);
 
-  if (isLoading) {
-    return <p>Loading users...</p>;
-  }
+  const openEditDialog = (user) => {
+    setEditingUserId(user.id);
+    setFormData({
+      name: user.name || "",
+      email: user.email || "",
+      password: user.passowrd,
+      role: user.role || "employee",
+    });
+    setDialogOpen(true);
+  };
 
-  if (error) {
-    return <p>{error}</p>;
-  }
-
-  const handleApprove = async () => {
-    if (selectedUsers.length !== 1) {
-      toast.error("Select a leave request first.");
-      return;
+  const handleEdit = async (e) => {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
     }
 
-    const userId = selectedUsers[0];
+    const userId = editingUserId || selectedUsers[0];
 
     try {
       setIsActionLoading(true);
       setError("");
 
       const response = await fetch(
+<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
         `http://localhost:8000/api/admin/leaves/${userId}/approve`,
+=======
+        `http://localhost:8000/api/v1/users/${userId}/edit`,
+>>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
+<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
           credentials: "include",
           body: JSON.stringify({
             approvedBy: 1,
           }),
+=======
+          body: JSON.stringify(formData),
+>>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
         },
       );
 
@@ -96,7 +144,6 @@ export default function UserRequests() {
           user.id === userId
             ? {
                 ...user,
-                status: "approved",
               }
             : user,
         ),
@@ -104,13 +151,16 @@ export default function UserRequests() {
 
       // Clear checkbox
       setSelectedUsers([]);
+      setEditingUserId(null);
+      setDialogOpen(false);
 
-      toast.success("Leave request approved", {
-        description: "The employee's leave request was approved.",
+      toast.success("Profile updated successfully", {
+        description: "Your profile was edited.",
       });
     } catch (error) {
-      console.error("Approval error:", error);
+      console.error("Profile edit error:", error);
 
+<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
       toast.error("Approval failed", {
         description: error.message,
       });
@@ -182,6 +232,9 @@ export default function UserRequests() {
       console.error("Approval error:", error);
 
       toast.error("Approval failed", {
+=======
+      toast.error("Profile edit failed", {
+>>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
         description: error.message,
       });
     } finally {
@@ -207,9 +260,22 @@ export default function UserRequests() {
     }
   };
 
+  if (isLoading) {
+    return <p>Loading users...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
+
   return (
+<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
     <div className="min-h-screen bg-red-50">
       <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
+=======
+    <div className="bg-red-50">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col px-4">
+>>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold">All Users</h2>
 
@@ -288,33 +354,156 @@ export default function UserRequests() {
                       <TableCell className="text-right font-semibold capitalize">
                         <Badge
                           variant={
-                            user.status === "approved"
+                            user.status === "active"
                               ? "secondary"
-                              : user.status === "rejected"
+                              : user.status === "deleted"
                                 ? "destructive"
                                 : "secondary"
                           }
                           className={
-                            user.status === "pending"
+                            user.status === "active"
                               ? "primary"
-                              : user.status === "approved"
-                                ? "success"
-                                : user.status === "rejected"
-                                  ? "danger"
-                                  : user.status === "cancelled"
-                                    ? "caution"
-                                    : ""
+                              : user.status === "deleted"
+                                ? "danger"
+                                : user.status === "suspended"
+                                  ? "caution"
+                                  : ""
                           }
                         >
                           {user.status}
                         </Badge>
                       </TableCell>
+<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
+=======
+
+                      <TableCell className="flex justify-end font-semibold capitalize">
+                        <span className="flex gap-2">
+                          <Button
+                            size="xs"
+                            varient="secondary"
+                            onClick={() => openEditDialog(user)}
+                            disabled={
+                              selectedUsers.length !== 1 || isActionLoading
+                            }
+                            className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                          >
+                            <Pen size={16} />{" "}
+                            <span className="hidden md:flex">
+                              {isActionLoading ? "Processing..." : "Edit"}
+                            </span>
+                          </Button>
+                          <Button
+                            size="xs"
+                            variant="destructive"
+                            onClick={0}
+                            disabled={
+                              selectedUsers.length !== 1 || isActionLoading
+                            }
+                            className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                          >
+                            <X size={16} />{" "}
+                            <span className="hidden md:flex"> Delete</span>
+                          </Button>
+                        </span>
+                      </TableCell>
+>>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
                     </TableRow>
                   ))
                 )}
               </TableBody>
             </Table>
           </Card>
+
+          <Dialog open={DialogOpen} onOpenChange={setDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Edit Profile</DialogTitle>
+                <DialogDescription>
+                  Update new information on account profile here. Click save
+                  when you're done.
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleEdit} className="space-y-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Your Name</Label>
+                  <Input
+                    id="edit-name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email address</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Confrim Password</Label>
+                  <Input
+                    id="edit-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="grid gap-2 m-0">
+                  <Label htmlFor="role">Assign Role</Label>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, role: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Roles</SelectLabel>
+                        <SelectItem value="employee">Employee</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <DialogFooter className="pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-full px-3"
+                    onClick={() => setDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="rounded-full px-3"
+                    disabled={isActionLoading}
+                  >
+                    {isActionLoading ? "updating..." : "Update Profile"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </section>
     </div>

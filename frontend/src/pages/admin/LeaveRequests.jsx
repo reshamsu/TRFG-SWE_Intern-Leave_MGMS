@@ -44,10 +44,29 @@ export default function LeaveRequests() {
         setIsLoading(true);
         setError("");
 
+<<<<<<< Updated upstream
         const response = await fetch("http://localhost:8000/api/admin/leaves", {
           method: "GET",
           credentials: "include",
         });
+=======
+        const token = sessionStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("No authentication token found. Please log in");
+        }
+
+        const response = await fetch(
+          "http://localhost:8000/api/v1/leaves/all",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+>>>>>>> Stashed changes
 
         const data = await response.json();
 
@@ -80,20 +99,33 @@ export default function LeaveRequests() {
       return;
     }
 
+    // FIX 1: Extract the selected leave ID so it's accessible below
     const leaveId = selectedLeaves[0];
+    const token = sessionStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Authentication failed", {
+        description: "No authentication token found. Please log in again.",
+      });
+      return;
+    }
 
     try {
       setIsActionLoading(true);
       setError("");
 
       const response = await fetch(
+<<<<<<< Updated upstream
         `http://localhost:8000/api/admin/leaves/${leaveId}/approve`,
+=======
+        `http://localhost:8000/api/v1/leaves/${leaveId}/approve`,
+>>>>>>> Stashed changes
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Consistent token usage
           },
-          credentials: "include",
           body: JSON.stringify({
             approvedBy: 1,
           }),
@@ -109,16 +141,11 @@ export default function LeaveRequests() {
       // Update the table immediately
       setLeaves((currentLeaves) =>
         currentLeaves.map((leave) =>
-          leave.id === leaveId
-            ? {
-                ...leave,
-                status: "approved",
-              }
-            : leave,
+          leave.id === leaveId ? { ...leave, status: "approved" } : leave,
         ),
       );
 
-      // Clear checkbox
+      // Clear checkbox selection
       setSelectedLeaves([]);
 
       toast.success("Leave request approved", {
@@ -126,7 +153,6 @@ export default function LeaveRequests() {
       });
     } catch (error) {
       console.error("Approval error:", error);
-
       toast.error("Approval failed", {
         description: error.message,
       });
@@ -136,24 +162,29 @@ export default function LeaveRequests() {
   };
 
   const handleReject = async () => {
-    if (selectedLeaves.length === 0) {
-      setError("Please select a leave request.");
-      return;
-    }
-
-    if (selectedLeaves.length > 1) {
-      setError("Please select only one leave request.");
+    if (selectedLeaves.length !== 1) {
+      toast.error("Please select exactly one leave request.");
       return;
     }
 
     const leaveId = selectedLeaves[0];
+    const token = sessionStorage.getItem("token");
 
-    // const rejectionReason = window.prompt(
-    //   "Enter the reason for rejecting this leave request:",
-    // );
+    if (!token) {
+      toast.error("Authentication failed", {
+        description: "No authentication token found. Please log in again.",
+      });
+      return;
+    }
 
-    if (!rejectionReason?.trim()) {
+    // FIX 2: Safe string check assuming rejectionReason comes from component state
+    const cleanReason = (rejectionReason || "").trim();
+
+    if (!cleanReason) {
       setError("Please enter a reason for rejecting this leave request.");
+      toast.error("Reason required", {
+        description: "Rejection reason cannot be empty.",
+      });
       return;
     }
 
@@ -162,16 +193,20 @@ export default function LeaveRequests() {
       setError("");
 
       const response = await fetch(
+<<<<<<< Updated upstream
         `http://localhost:8000/api/admin/leaves/${leaveId}/reject`,
+=======
+        `http://localhost:8000/api/v1/leaves/${leaveId}/reject`,
+>>>>>>> Stashed changes
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Consistent token usage
           },
-          credentials: "include",
           body: JSON.stringify({
             approvedBy: 1,
-            rejectionReason: rejectionReason.trim(),
+            rejectionReason: cleanReason,
           }),
         },
       );
@@ -189,16 +224,14 @@ export default function LeaveRequests() {
             ? {
                 ...leave,
                 status: "rejected",
-                rejection_reason: rejectionReason.trim(),
+                rejection_reason: cleanReason,
               }
             : leave,
         ),
       );
 
-      // Clear selection
+      // Clear selection and dialog states
       setSelectedLeaves([]);
-
-      // Clear dialog state
       setRejectionReason("");
       setRejectDialogOpen(false);
 
@@ -206,9 +239,8 @@ export default function LeaveRequests() {
         description: "The employee's leave request was rejected.",
       });
     } catch (error) {
-      console.error("Approval error:", error);
-
-      toast.error("Approval failed", {
+      console.error("Rejection error:", error); // Fixed typo label
+      toast.error("Rejection failed", {
         description: error.message,
       });
     } finally {
@@ -235,8 +267,13 @@ export default function LeaveRequests() {
   };
 
   return (
+<<<<<<< Updated upstream
     <div className="min-h-screen bg-red-50">
       <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
+=======
+    <div className="bg-red-50">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col px-4">
+>>>>>>> Stashed changes
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold">All Leave Requests</h2>
 
@@ -317,7 +354,7 @@ export default function LeaveRequests() {
               <TableBody>
                 {leaves.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={8} className="h-24 text-center">
                       <p>No leave requests found.</p>
                     </TableCell>
                   </TableRow>
@@ -368,6 +405,54 @@ export default function LeaveRequests() {
                           {leave.status}
                         </Badge>
                       </TableCell>
+<<<<<<< Updated upstream
+=======
+
+                      <TableCell className="flex justify-end font-semibold capitalize">
+                        <span className="flex gap-2">
+                          <Button
+                            size="xs"
+                            onClick={handleApprove}
+                            disabled={
+                              selectedLeaves.length !== 1 || isActionLoading
+                            }
+                            className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                          >
+                            <Check size={16} />{" "}
+                            <span className="hidden md:flex">
+                              {isActionLoading ? "Processing..." : "Approve"}
+                            </span>
+                          </Button>
+                          <Button
+                            size="xs"
+                            onClick={() => {
+                              if (selectedLeaves.length === 0) {
+                                setError("Please select a leave request.");
+                                return;
+                              }
+
+                              if (selectedLeaves.length > 1) {
+                                setError(
+                                  "Please select only one leave request.",
+                                );
+                                return;
+                              }
+
+                              setRejectionReason("");
+                              setRejectDialogOpen(true);
+                            }}
+                            disabled={
+                              selectedLeaves.length !== 1 || isActionLoading
+                            }
+                            variant="destructive"
+                            className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                          >
+                            <X size={16} />{" "}
+                            <span className="hidden md:flex"> Reject </span>
+                          </Button>
+                        </span>
+                      </TableCell>
+>>>>>>> Stashed changes
                     </TableRow>
                   ))
                 )}

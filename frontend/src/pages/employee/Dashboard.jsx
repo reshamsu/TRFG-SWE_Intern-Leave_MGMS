@@ -74,16 +74,21 @@ export default function Dashboard() {
   }
 
   function createLeave() {
-    navigate("/employee/leave/new");
+    navigate("/dashboard/employee/leave/new");
   }
 
   function viewLeaves() {
-    navigate("/employee/leave/history");
+    navigate("/dashboard/employee/leave/history");
   }
 
   return (
+<<<<<<< Updated upstream
     <div className="min-h-screen bg-red-50">
       <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col">
+=======
+    <div className="bg-red-50">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col">
+>>>>>>> Stashed changes
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold">Welcome Empl!</h2>
 
@@ -97,7 +102,7 @@ export default function Dashboard() {
         </div>
 
         <div className="mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 4xl:grid-cols-5 gap-4">
             <Card className="px-6 gap-2">
               <CardTitle className="font-semibold">All Requests</CardTitle>
 
@@ -112,12 +117,26 @@ export default function Dashboard() {
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
               </CardDescription>
             </Card>
+             <Card className="px-6 gap-2">
+              <CardTitle className="font-semibold">Available Leaves</CardTitle>
+
+              <CardDescription>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              </CardDescription>
+            </Card>
+             <Card className="px-6 gap-2">
+              <CardTitle className="font-semibold">Available Leaves</CardTitle>
+
+              <CardDescription>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              </CardDescription>
+            </Card>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
+          <div className="mt-6 grid grid-cols-1 xl:grid-cols-[2fr_.64fr] gap-4">
             <div>
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold">My Recent Requests</h2>
+                <h2 className="text-sm font-semibold">Recent Leave Requests</h2>
 
                 <Button
                   size="xs"

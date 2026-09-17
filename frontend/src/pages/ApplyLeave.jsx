@@ -41,6 +41,7 @@ export default function ApplyLeave() {
         throw new Error("Please select a start and end date.");
       }
 
+<<<<<<< Updated upstream:frontend/src/pages/employee/ApplyLeave.jsx
       const response = await fetch("http://localhost:8000/api/leaves", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,6 +52,23 @@ export default function ApplyLeave() {
           reason: formData.get("reason"),
         }),
       });
+=======
+      const response = await fetch(
+        "http://localhost:8000/api/v1/leaves/apply",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            start_date: format(date.from, "yyyy-MM-dd"),
+            end_date: format(date.to, "yyyy-MM-dd"),
+            reason: formData.get("reason"),
+          }),
+        },
+      );
+>>>>>>> Stashed changes:frontend/src/pages/ApplyLeave.jsx
 
       const data = await response.json();
 
@@ -58,7 +76,14 @@ export default function ApplyLeave() {
         throw new Error(data.message || "Create Request Failed");
       }
 
-      navigate("/employee/dashboard");
+      if (data.role === "admin") {
+        navigate("/dashboard/admin");
+      } else if (data.role === "employee") {
+        navigate("/dashboard/employee");
+      } else {
+        // Fallback route in case the role doesn't match or is missing
+        navigate("/dashboard");
+      }
     } catch (error) {
       setError(error.message);
     } finally {
@@ -72,8 +97,13 @@ export default function ApplyLeave() {
   });
 
   return (
+<<<<<<< Updated upstream:frontend/src/pages/employee/ApplyLeave.jsx
     <div className="min-h-screen bg-red-50">
       <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
+=======
+    <div className="bg-red-50">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col px-4">
+>>>>>>> Stashed changes:frontend/src/pages/ApplyLeave.jsx
         <div className="flex justify-between">
           <h1 className="text-lg font-semibold">Apply for Leave</h1>
         </div>
