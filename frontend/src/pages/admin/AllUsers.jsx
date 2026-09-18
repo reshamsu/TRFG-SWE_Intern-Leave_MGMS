@@ -99,9 +99,7 @@ export default function UserRequests() {
   };
 
   const handleEdit = async (e) => {
-    if (e && typeof e.preventDefault === "function") {
-      e.preventDefault();
-    }
+    e.preventDefault();
 
     const userId = editingUserId || selectedUsers[0];
 
@@ -124,7 +122,6 @@ export default function UserRequests() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(formData),
-
         },
       );
 
@@ -283,7 +280,6 @@ export default function UserRequests() {
                             <Pen size={16} />{" "}
                             <span className="hidden md:flex">
                               {isActionLoading ? "Processing..." : "Edit"}
-
                             </span>
                           </Button>
                           <Button

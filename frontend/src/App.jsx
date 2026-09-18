@@ -30,11 +30,6 @@ function App() {
 
           {/* Employee */}
           <Route element={<DashboardLayout role="employee" />}>
-<<<<<<< Updated upstream
-            <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
-            <Route path="/employee/leave/new" element={<ApplyLeave />} />
-            <Route path="/employee/leave/history" element={<LeaveHistory />} />
-=======
             <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
             <Route
               path="/dashboard/employee/leave/new"
@@ -48,22 +43,15 @@ function App() {
               path="/dashboard/employee/profile/edit"
               element={<Profile />}
             />
->>>>>>> Stashed changes
           </Route>
 
           {/* Admin */}
           <Route element={<DashboardLayout role="admin" />}>
-<<<<<<< Updated upstream
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/leaves" element={<LeaveRequests />} />
-            <Route path="/admin/users" element={<UserRequests />} />
-=======
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
             <Route path="/dashboard/admin/leave/new" element={<ApplyLeave />} />
             <Route path="/dashboard/admin/leaves" element={<LeaveRequests />} />
             <Route path="/dashboard/admin/users" element={<UserRequests />} />
             <Route path="/dashboard/admin/profile/edit" element={<Profile />} />
->>>>>>> Stashed changes
           </Route>
 
           {/* Unknown URL */}

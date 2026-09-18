@@ -12,13 +12,13 @@ import {
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { Check, Plus, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+   const [users, setUsers] = useState([]);
   const [leaves, setLeaves] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -92,7 +92,7 @@ export default function Dashboard() {
       }
 
       const response = await fetch(
-        `http://localhost:8000/api/v1/admin/user/${userId}/approve`,
+        `http://localhost:8000/api/v1/admin/users/register`,
         {
           method: "PATCH",
           headers: {
@@ -120,22 +120,6 @@ export default function Dashboard() {
       });
     } finally {
       setIsActionLoading(false);
-    }
-  };
-
-  const toggleUser = (userId) => {
-    setSelectedUsers((current) =>
-      current.includes(userId)
-        ? current.filter((id) => id !== userId)
-        : [...current, userId],
-    );
-  };
-
-  const toggleAllUsers = () => {
-    if (selectedUsers.length === users.length) {
-      setSelectedUsers([]);
-    } else {
-      setSelectedUsers(users.map((users) => users.id));
     }
   };
 
@@ -217,7 +201,7 @@ export default function Dashboard() {
                             users.length > 0 &&
                             selectedUsers.length === users.length
                           }
-                          onCheckedChange={toggleAllUsers}
+                          onCheckedChange={0}
                           aria-label="Select all user requests"
                         />
                       </TableHead>
@@ -277,35 +261,6 @@ export default function Dashboard() {
                             >
                               {leave.status}
                             </Badge>
-                          </TableCell>
-
-                          <TableCell className="flex justify-end font-bold">
-                            {" "}
-                            <span className="flex gap-2">
-                              <Button
-                                size="xs"
-                                variant="secondary"
-                                onClick={handleApprove}
-                                disabled={
-                                  selectedUsers.length !== 1 || isActionLoading
-                                }
-                                className="success rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-                              >
-                                <Check size={16} />{" "}
-                                {isActionLoading ? "Processing..." : "Approve"}
-                              </Button>
-                              <Button
-                                size="xs"
-                                onClick={handleReject}
-                                disabled={
-                                  selectedUsers.length !== 1 || isActionLoading
-                                }
-                                variant="destructive"
-                                className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-                              >
-                                <X size={16} /> Reject
-                              </Button>
-                            </span>
                           </TableCell>
                         </TableRow>
                       ))

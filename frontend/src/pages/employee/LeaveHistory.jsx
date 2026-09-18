@@ -247,14 +247,8 @@ export default function LeaveHistory() {
   };
 
   return (
-<<<<<<< Updated upstream
-    <div className="min-h-screen bg-red-50">
-      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
-      <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
-=======
     <div className="bg-red-50">
       <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col px-4">
->>>>>>> Stashed changes
         <div className="flex justify-between">
           <h2 className="text-lg lg:text-xl font-semibold">View History</h2>
         </div>

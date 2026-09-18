@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom"; // Added Navigate
 import Sidebar from "@/components/Sidebar";
-import { Bell, Menu, Search } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 // import { ButtonGroup } from "@/components/ui/button-group";
 // import { Field } from "@/components/ui/field";
@@ -46,18 +46,7 @@ export default function DashboardLayout({ role }) {
             </h1>
           </span>
 
-          <span className="flex items-center gap-2">
-            <Button
-              size="sm"
-              onClick={0}
-              variant="outline"
-              className="rounded-full px-3 py-5 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <Search size={14} />
-            </Button>
-            </span>
           <span className="flex items-center gap-6">
-
             <Button
               size="sm"
               onClick={() => console.log("Notifications clicked")} // FIXED: Changed from 0 to an arrow function
