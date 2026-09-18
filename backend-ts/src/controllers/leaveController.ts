@@ -77,6 +77,13 @@ export class LeaveController {
         reason,
       } = req.body ?? {};
 
+      console.log("DEBUG PAYLOAD:", {
+        employeeId,
+        bodyReceived: req.body,
+        userObject: req.user,
+        parsed: { startDate, endDate, reason },
+      });
+
       if (!employeeId || !startDate || !endDate || !reason) {
         res.status(400).json({
           error: "EmployeeId, StartDate, EndDate, Reason are required",

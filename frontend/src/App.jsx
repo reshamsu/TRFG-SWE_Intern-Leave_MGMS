@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
+// import Register from "./pages/Register";
+
 import NotFound from "./pages/NotFound";
 
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -25,7 +26,7 @@ function App() {
 
           {/* Authentication */}
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* <Route path="/register" element={<Register />} /> */}
 
           {/* Employee */}
           <Route element={<DashboardLayout role="employee" />}>

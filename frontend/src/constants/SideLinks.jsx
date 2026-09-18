@@ -4,22 +4,17 @@ import { LayoutDashboard, FilePlus2, ClipboardList, User, Users } from "lucide-r
 const employeeLinks = [
   {
     label: "Dashboard",
-    to: "/employee/dashboard",
+    to: "/dashboard/employee",
     icon: LayoutDashboard,
   },
   {
     label: "Apply for Leave",
-    to: "/employee/leave/new",
+    to: "/dashboard/employee/leave/new",
     icon: FilePlus2,
   },
   {
-<<<<<<< Updated upstream
-    label: "My Leave History",
-    to: "/employee/leave/history",
-=======
     label: "Leave History",
     to: "dashboard/employee/leave/history",
->>>>>>> Stashed changes
     icon: ClipboardList,
   },
   {
@@ -32,7 +27,7 @@ const employeeLinks = [
 const adminLinks = [
   {
     label: "Dashboard",
-    to: "/admin/dashboard",
+    to: "/dashboard/admin",
     icon: LayoutDashboard,
   },
   {
@@ -42,21 +37,17 @@ const adminLinks = [
   },
   {
     label: "Leave Requests",
-    to: "/admin/leaves",
+    to: "/dashboard/admin/leaves",
     icon: ClipboardList,
   },
   {
     label: "All Users",
-<<<<<<< Updated upstream
-    to: "/admin/users",
-=======
     to: "/dashboard/admin/users",
     icon: Users,
   },
     {
     label: "My Profile",
     to: "/dashboard/admin/profile/edit",
->>>>>>> Stashed changes
     icon: User,
   },
   // {
@@ -78,13 +69,10 @@ export default function SideLink({ role }) {
           <NavLink
             key={link.to}
             to={link.to}
-<<<<<<< Updated upstream
-=======
             end={
               link.to === "/dashboard/admin" ||
               link.to === "/dashboard/employee"
             }
->>>>>>> Stashed changes
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
                 isActive

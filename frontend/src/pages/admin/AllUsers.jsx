@@ -56,9 +56,6 @@ export default function UserRequests() {
         setIsLoading(true);
         setError("");
 
-<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
-        const response = await fetch("http://localhost:8000/api/admin/users", {
-=======
         const token = sessionStorage.getItem("token");
 
         if (!token) {
@@ -66,9 +63,11 @@ export default function UserRequests() {
         }
 
         const response = await fetch("http://localhost:8000/api/v1/users/all", {
->>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
           method: "GET",
-          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const data = await response.json();
@@ -76,7 +75,7 @@ export default function UserRequests() {
         if (!response.ok) {
           throw new Error(data.message || "Could not fetch all users");
         }
-        setUsers(Array.isArray(data.userRequests) ? data.userRequests : []);
+        setUsers(Array.isArray(data) ? data : []);
       } catch (error) {
         console.log("Error here", error);
         setError(error.message);
@@ -110,25 +109,22 @@ export default function UserRequests() {
       setIsActionLoading(true);
       setError("");
 
+      const token = sessionStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No authentication token found. Please log in");
+      }
+
       const response = await fetch(
-<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
-        `http://localhost:8000/api/admin/leaves/${userId}/approve`,
-=======
         `http://localhost:8000/api/v1/users/${userId}/edit`,
->>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
-          credentials: "include",
-          body: JSON.stringify({
-            approvedBy: 1,
-          }),
-=======
           body: JSON.stringify(formData),
->>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
+
         },
       );
 
@@ -138,7 +134,6 @@ export default function UserRequests() {
         throw new Error(data.message || "Could not approve leave request.");
       }
 
-      // Update the table immediately
       setUsers((currentLeaves) =>
         currentLeaves.map((user) =>
           user.id === userId
@@ -159,82 +154,7 @@ export default function UserRequests() {
       });
     } catch (error) {
       console.error("Profile edit error:", error);
-
-<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
       toast.error("Approval failed", {
-        description: error.message,
-      });
-    } finally {
-      setIsActionLoading(false);
-    }
-  };
-
-  const handleReject = async () => {
-    if (selectedUsers.length === 0) {
-      setError("Please select a leave request.");
-      return;
-    }
-
-    if (selectedUsers.length > 1) {
-      setError("Please select only one leave request.");
-      return;
-    }
-
-    const userId = selectedUsers[0];
-
-    // const rejectionReason = window.prompt(
-    //   "Enter the reason for rejecting this leave request:",
-    // );
-
-    try {
-      setIsActionLoading(true);
-      setError("");
-
-      const response = await fetch(
-        `http://localhost:8000/api/admin/leaves/${userId}/reject`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            approvedBy: 1,
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Could not reject leave request.");
-      }
-
-      // Update table immediately
-      setUsers((currentLeaves) =>
-        currentLeaves.map((user) =>
-          user.id === userId
-            ? {
-                ...user,
-                status: "rejected",
-              }
-            : user,
-        ),
-      );
-
-      // Clear selection
-      setSelectedUsers([]);
-
-      toast.success("Leave request rejected", {
-        description: "The employee's leave request was rejected.",
-      });
-    } catch (error) {
-      console.error("Approval error:", error);
-
-      toast.error("Approval failed", {
-=======
-      toast.error("Profile edit failed", {
->>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
         description: error.message,
       });
     } finally {
@@ -269,36 +189,10 @@ export default function UserRequests() {
   }
 
   return (
-<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
-    <div className="min-h-screen bg-red-50">
-      <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
-=======
     <div className="bg-red-50">
       <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col px-4">
->>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold">All Users</h2>
-
-          <span className="flex gap-3">
-            <Button
-              size="sm"
-              onClick={handleApprove}
-              disabled={selectedUsers.length !== 1 || isActionLoading}
-              className="rounded-full px-4 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <Check size={16} />{" "}
-               <span className="hidden md:flex">{isActionLoading ? "Processing..." : "Approve"}</span>
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={handleReject}
-              disabled={selectedUsers.length !== 1 || isActionLoading}
-              className="rounded-full px-4 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <X size={16} /> <span className="hidden md:flex"> Reject</span>
-            </Button>
-          </span>
         </div>
 
         <div className="mt-4">
@@ -317,18 +211,19 @@ export default function UserRequests() {
                       aria-label="Select all users"
                     />
                   </TableHead>
-                  <TableHead className="w-[140px]">User ID</TableHead>
+                  <TableHead className="w-[90px]">User ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right font-bold">Action</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       <p>No users found.</p>
                     </TableCell>
                   </TableRow>
@@ -351,7 +246,7 @@ export default function UserRequests() {
 
                       <TableCell className="capitalize">{user.role}</TableCell>
 
-                      <TableCell className="text-right font-semibold capitalize">
+                      <TableCell className="font-semibold capitalize">
                         <Badge
                           variant={
                             user.status === "active"
@@ -373,8 +268,6 @@ export default function UserRequests() {
                           {user.status}
                         </Badge>
                       </TableCell>
-<<<<<<< Updated upstream:frontend/src/pages/admin/UserRequests.jsx
-=======
 
                       <TableCell className="flex justify-end font-semibold capitalize">
                         <span className="flex gap-2">
@@ -390,6 +283,7 @@ export default function UserRequests() {
                             <Pen size={16} />{" "}
                             <span className="hidden md:flex">
                               {isActionLoading ? "Processing..." : "Edit"}
+
                             </span>
                           </Button>
                           <Button
@@ -406,7 +300,6 @@ export default function UserRequests() {
                           </Button>
                         </span>
                       </TableCell>
->>>>>>> Stashed changes:frontend/src/pages/admin/AllUsers.jsx
                     </TableRow>
                   ))
                 )}

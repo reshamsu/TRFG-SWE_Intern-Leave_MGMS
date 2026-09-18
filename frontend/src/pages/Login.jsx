@@ -27,10 +27,9 @@ function Login() {
     const formData = new FormData(event.currentTarget);
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login", {
+      const response = await fetch("http://localhost:8000/api/v1/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
           email: formData.get("email"),
           password: formData.get("password"),
@@ -40,15 +39,17 @@ function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Invalid Email or Password");
+        throw new Error(error || data.message || "Invalid Email or Password");
       }
 
       // Stores current user logged in for this brower session
-      sessionStorage.setItem("user", JSON.stringify(data.user));
+      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("userRole", data.user.role);
+      sessionStorage.setItem("userName", data.user.name);
 
       // Navigate based on the role returned by backend
       navigate(
-        data.user.role === "admin" ? "/admin/dashboard" : "/employee/dashboard",
+        data.user.role === "admin" ? "/dashboard/admin" : "/dashboard/employee",
       );
     } catch (error) {
       setError(error.message);
@@ -73,7 +74,6 @@ function Login() {
 
           <CardContent>
             <form className="space-y-5" onSubmit={handleLogin}>
-              
               {error && (
                 <p className="text-sm text-center text-red-600 px-4 py-2 bg-red-100 border border-red-200 rounded-lg">
                   {error}

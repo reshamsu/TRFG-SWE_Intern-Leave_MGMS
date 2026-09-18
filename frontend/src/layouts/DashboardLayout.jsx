@@ -1,17 +1,19 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom"; // Added Navigate
 import Sidebar from "@/components/Sidebar";
 import { Bell, Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+// import { ButtonGroup } from "@/components/ui/button-group";
+// import { Field } from "@/components/ui/field";
+// import { Input } from "@/components/ui/input";
 import { useState } from "react";
 
 export default function DashboardLayout({ role }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-<<<<<<< Updated upstream
-=======
   const token = sessionStorage.getItem("token");
   const currentUserRole = sessionStorage.getItem("userRole");
   const currentUserName = sessionStorage.getItem("userName");
+
 
   if (!token) {
     return <Navigate to="/login" replace />;
@@ -21,7 +23,6 @@ export default function DashboardLayout({ role }) {
     return <Navigate to="/login" replace />;
   }
 
->>>>>>> Stashed changes
   const closeSidebar = () => {
     setSidebarOpen(false);
   };
@@ -37,7 +38,7 @@ export default function DashboardLayout({ role }) {
             <Menu
               size={22}
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden"
+              className="lg:hidden cursor-pointer"
             />
 
             <h1 className="text-lg font-semibold">
@@ -45,7 +46,6 @@ export default function DashboardLayout({ role }) {
             </h1>
           </span>
 
-<<<<<<< Updated upstream
           <span className="flex items-center gap-2">
             <Button
               size="sm"
@@ -55,13 +55,12 @@ export default function DashboardLayout({ role }) {
             >
               <Search size={14} />
             </Button>
-
-=======
+            </span>
           <span className="flex items-center gap-6">
->>>>>>> Stashed changes
+
             <Button
               size="sm"
-              onClick={0}
+              onClick={() => console.log("Notifications clicked")} // FIXED: Changed from 0 to an arrow function
               variant="outline"
               className="rounded-full px-2.5 py-4.5 gap-2 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
             >

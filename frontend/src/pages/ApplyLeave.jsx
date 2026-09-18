@@ -27,53 +27,47 @@ export default function ApplyLeave() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const user = JSON.parse(sessionStorage.getItem("user"));
+  const [date, setDate] = React.useState({
+    from: undefined,
+    to: undefined,
+  });
 
   async function handleCreateRequest(event) {
     event.preventDefault();
     setError("");
     setIsLoading(true);
 
+    const token = sessionStorage.getItem("token");
     const formData = new FormData(event.currentTarget);
 
     try {
+      if (!token) {
+        throw new Error("No authentication token found. Please log in");
+      }
+
       if (!date?.from || !date?.to) {
         throw new Error("Please select a start and end date.");
       }
 
-<<<<<<< Updated upstream:frontend/src/pages/employee/ApplyLeave.jsx
-      const response = await fetch("http://localhost:8000/api/leaves", {
+
+      const response = await fetch("http://localhost:8000/api/v1/leaves/apply", {
+
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          employee_id: user.id,
           start_date: format(date.from, "yyyy-MM-dd"),
           end_date: format(date.to, "yyyy-MM-dd"),
           reason: formData.get("reason"),
         }),
       });
-=======
-      const response = await fetch(
-        "http://localhost:8000/api/v1/leaves/apply",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            start_date: format(date.from, "yyyy-MM-dd"),
-            end_date: format(date.to, "yyyy-MM-dd"),
-            reason: formData.get("reason"),
-          }),
-        },
-      );
->>>>>>> Stashed changes:frontend/src/pages/ApplyLeave.jsx
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Create Request Failed");
+        throw new Error(data.error || data.message || "Create Request Failed");
       }
 
       if (data.role === "admin") {
@@ -91,19 +85,11 @@ export default function ApplyLeave() {
     }
   }
 
-  const [date, setDate] = React.useState({
-    from: undefined,
-    to: undefined,
-  });
-
   return (
-<<<<<<< Updated upstream:frontend/src/pages/employee/ApplyLeave.jsx
-    <div className="min-h-screen bg-red-50">
-      <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
-=======
+
     <div className="bg-red-50">
       <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col px-4">
->>>>>>> Stashed changes:frontend/src/pages/ApplyLeave.jsx
+
         <div className="flex justify-between">
           <h1 className="text-lg font-semibold">Apply for Leave</h1>
         </div>
@@ -179,22 +165,16 @@ export default function ApplyLeave() {
                 </FieldGroup>
               </FieldSet>
 
-              <Field orientation="horizontal" className="gap-2">
+              <Field
+                orientation="horizontal"
+                className="gap-2 flex justify-end"
+              >
                 <Button
                   type="submit"
-                  size="sm"
                   disabled={isLoading}
                   className="rounded-full px-5"
                 >
-                  {isLoading ? "Submitting..." : "Submit"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="rounded-full px-4"
-                  type="button"
-                >
-                  Cancel
+                  {isLoading ? "Submitting..." : "Submit Request"}
                 </Button>
               </Field>
             </FieldGroup>

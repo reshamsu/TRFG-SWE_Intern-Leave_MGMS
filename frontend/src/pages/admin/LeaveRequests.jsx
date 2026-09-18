@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { Check, X } from "lucide-react";
@@ -27,7 +28,6 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { InfoIcon } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 
 export default function LeaveRequests() {
   const [leaves, setLeaves] = useState([]);
@@ -44,12 +44,7 @@ export default function LeaveRequests() {
         setIsLoading(true);
         setError("");
 
-<<<<<<< Updated upstream
-        const response = await fetch("http://localhost:8000/api/admin/leaves", {
-          method: "GET",
-          credentials: "include",
-        });
-=======
+
         const token = sessionStorage.getItem("token");
 
         if (!token) {
@@ -66,14 +61,15 @@ export default function LeaveRequests() {
             },
           },
         );
->>>>>>> Stashed changes
+
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Could not fetch all leave requests");
+          throw new Error(data.error || "Could not fetch all leave requests");
         }
-        setLeaves(Array.isArray(data.leaveRequests) ? data.leaveRequests : []);
+
+        setLeaves(Array.isArray(data) ? data : []);
       } catch (error) {
         console.log("Error here", error);
         setError(error.message);
@@ -115,16 +111,14 @@ export default function LeaveRequests() {
       setError("");
 
       const response = await fetch(
-<<<<<<< Updated upstream
-        `http://localhost:8000/api/admin/leaves/${leaveId}/approve`,
-=======
+
         `http://localhost:8000/api/v1/leaves/${leaveId}/approve`,
->>>>>>> Stashed changes
+
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Consistent token usage
+            Authorization: `Bearer ${token}`, 
           },
           body: JSON.stringify({
             approvedBy: 1,
@@ -193,11 +187,8 @@ export default function LeaveRequests() {
       setError("");
 
       const response = await fetch(
-<<<<<<< Updated upstream
-        `http://localhost:8000/api/admin/leaves/${leaveId}/reject`,
-=======
+
         `http://localhost:8000/api/v1/leaves/${leaveId}/reject`,
->>>>>>> Stashed changes
         {
           method: "PATCH",
           headers: {
@@ -267,51 +258,12 @@ export default function LeaveRequests() {
   };
 
   return (
-<<<<<<< Updated upstream
-    <div className="min-h-screen bg-red-50">
-      <section className="max-w-6xl mx-auto py-10 px-6 md:px-10 2xl:px-0 flex flex-col min-h-screen px-4">
-=======
+
     <div className="bg-red-50">
       <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col px-4">
->>>>>>> Stashed changes
+
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold">All Leave Requests</h2>
-
-          <span className="flex gap-3">
-            <Button
-              size="sm"
-              onClick={handleApprove}
-              disabled={selectedLeaves.length !== 1 || isActionLoading}
-              className="rounded-full px-4 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <Check size={16} />{" "}
-              <span className="hidden md:flex">
-                {isActionLoading ? "Processing..." : "Approve"}
-              </span>
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => {
-                if (selectedLeaves.length === 0) {
-                  setError("Please select a leave request.");
-                  return;
-                }
-
-                if (selectedLeaves.length > 1) {
-                  setError("Please select only one leave request.");
-                  return;
-                }
-
-                setRejectionReason("");
-                setRejectDialogOpen(true);
-              }}
-              disabled={selectedLeaves.length !== 1 || isActionLoading}
-              variant="destructive"
-              className="rounded-full px-4 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-            >
-              <X size={16} /> <span className="hidden md:flex"> Reject </span>
-            </Button>
-          </span>
         </div>
 
         <div className="mt-4">
@@ -343,11 +295,13 @@ export default function LeaveRequests() {
                       aria-label="Select all leave requests"
                     />
                   </TableHead>
-                  <TableHead className="w-[120px]">Empl ID</TableHead>
+                  <TableHead className="w-[90px]">Empl ID</TableHead>
                   <TableHead>Reason</TableHead>
                   <TableHead>Leave Issued</TableHead>
                   <TableHead>Reason for Rejection</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead>Total Days</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right font-bold">Action</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -369,7 +323,7 @@ export default function LeaveRequests() {
                         />
                       </TableCell>
 
-                      <TableCell>{leave.employee_id}</TableCell>
+                      <TableCell>{leave.id}</TableCell>
 
                       <TableCell>{leave.reason}</TableCell>
 
@@ -381,7 +335,9 @@ export default function LeaveRequests() {
 
                       <TableCell>{leave.rejection_reason}</TableCell>
 
-                      <TableCell className="text-right font-semibold capitalize">
+                      <TableCell>{leave.total_days}</TableCell>
+
+                      <TableCell className="font-semibold capitalize">
                         <Badge
                           variant={
                             leave.status === "approved"
@@ -405,8 +361,7 @@ export default function LeaveRequests() {
                           {leave.status}
                         </Badge>
                       </TableCell>
-<<<<<<< Updated upstream
-=======
+
 
                       <TableCell className="flex justify-end font-semibold capitalize">
                         <span className="flex gap-2">
@@ -452,7 +407,6 @@ export default function LeaveRequests() {
                           </Button>
                         </span>
                       </TableCell>
->>>>>>> Stashed changes
                     </TableRow>
                   ))
                 )}
