@@ -11,14 +11,35 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { Check, Plus, X } from "lucide-react";
+import { ArrowUpRight, Check, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Checkbox } from "@/components/ui/checkbox";
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
   const [leaves, setLeaves] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -59,7 +80,7 @@ export default function Dashboard() {
         if (!response.ok) {
           throw new Error(data.message || "Could not fetch all leave requests");
         }
-        setUsers(Array.isArray(data.userRequests) ? data.userRequests : []);
+        setUsers(Array.isArray(data.history) ? data.history : []);
       } catch (error) {
         console.log(error);
         setError(error.message);
@@ -78,7 +99,6 @@ export default function Dashboard() {
   if (error) {
     return <p>{error}</p>;
   }
-
 
   const handleRegisterSubmit = async () => {
     try {
@@ -99,7 +119,6 @@ export default function Dashboard() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        
         },
       );
 
@@ -122,6 +141,10 @@ export default function Dashboard() {
       setIsActionLoading(false);
     }
   };
+
+  function viewLeaves() {
+    navigate("/dashboard/employee/leave/history");
+  }
 
   return (
     <div className="min-h-screen bg-red-50">
@@ -163,29 +186,17 @@ export default function Dashboard() {
           </div>
           <div className="mt-6 grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
             <div className="flex flex-col items-start justify-between">
-              <div className="flex items-center justify-between w-full">
-                <h2 className="text-sm font-semibold">Recent User Requests</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold">Recent Leave Requests</h2>
 
-                <span className="flex gap-2">
-                  <Button
-                    size="xs"
-                    onClick={handleApprove}
-                    disabled={selectedUsers.length !== 1 || isActionLoading}
-                    className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-                  >
-                    <Check size={16} />{" "}
-                    {isActionLoading ? "Processing..." : "Approve"}
-                  </Button>
-                  <Button
-                    size="xs"
-                    onClick={handleReject}
-                    disabled={selectedUsers.length !== 1 || isActionLoading}
-                    variant="destructive"
-                    className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
-                  >
-                    <X size={16} /> Reject
-                  </Button>
-                </span>
+                <Button
+                  size="xs"
+                  variant="outline"
+                  onClick={viewLeaves}
+                  className="rounded-full px-3 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+                >
+                  View All <ArrowUpRight size={20} />
+                </Button>
               </div>
 
               <Card className="mt-3 px-6 gap-2">
@@ -195,20 +206,10 @@ export default function Dashboard() {
                   </TableCaption>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={
-                            users.length > 0 &&
-                            selectedUsers.length === users.length
-                          }
-                          onCheckedChange={0}
-                          aria-label="Select all user requests"
-                        />
-                      </TableHead>
-                      <TableHead>User ID</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead className="text-right">Role</TableHead>
+                      <TableHead>Empl ID</TableHead>
+                      <TableHead>Reason</TableHead>
+                      <TableHead>Leave Issued</TableHead>
+                      <TableHead className="text-right">Status</TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -231,12 +232,6 @@ export default function Dashboard() {
                             {" - "}
                             {format(new Date(leave.end_date), "MMM dd, yyyy")}
                           </TableCell>
-
-                          <TableCell>{user.id}</TableCell>
-
-                          <TableCell>{user.name}</TableCell>
-
-                          <TableCell>{user.email}</TableCell>
 
                           <TableCell className="text-right font-semibold capitalize">
                             <Badge
@@ -281,10 +276,103 @@ export default function Dashboard() {
                 </CardDescription>
               </Card>
             </div>
+
+            <Dialog open={DialogOpen} onOpenChange={setDialogOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Register New User</DialogTitle>
+                  <DialogDescription>
+                    Create a new user account profile here. Click save when
+                    you're done.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      placeholder="John Doe"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">Set Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2 m-0">
+                    <Label htmlFor="role">Assign Role</Label>
+                    <Select
+                      value={formData.role}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, role: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Roles</SelectLabel>
+                          <SelectItem value="employee">Employee</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <DialogFooter className="pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-full px-3"
+                      onClick={() => setDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="rounded-full px-3"
+                      disabled={isActionLoading}
+                    >
+                      {isActionLoading ? "Registering..." : "Save User"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
-             </section>
-    
+      </section>
     </div>
   );
 }

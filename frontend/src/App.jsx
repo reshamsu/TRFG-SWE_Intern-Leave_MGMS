@@ -8,7 +8,7 @@ import NotFound from "./pages/NotFound";
 import DashboardLayout from "./layouts/DashboardLayout";
 
 import EmployeeDashboard from "./pages/employee/Dashboard";
-import ApplyLeave from "./pages/ApplyLeave";
+import ApplyLeave from "./pages/employee/ApplyLeave";
 import LeaveHistory from "./pages/employee/LeaveHistory";
 
 import AdminDashboard from "./pages/admin/Dashboard";

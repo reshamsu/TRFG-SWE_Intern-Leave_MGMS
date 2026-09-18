@@ -140,7 +140,7 @@ export default function Dashboard() {
                 </Button>
               </div>
 
-              <Card className="mt-3 px-6 gap-2">
+             <Card className="mt-3 px-6 gap-2">
                 <Table>
                   <TableCaption className="lg:text-start xl:text-center">
                     A list of your recent leaves.
@@ -217,6 +217,8 @@ export default function Dashboard() {
                 </CardDescription>
               </Card>
             </div>
+
+          
           </div>
         </div>
       </section>
