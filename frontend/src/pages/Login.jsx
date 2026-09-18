@@ -39,7 +39,7 @@ function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(error || data.message || "Invalid Email or Password");
+        throw new Error(data.message || "Invalid Email or Password");
       }
 
       // Stores current user logged in for this brower session

@@ -4,13 +4,15 @@ import * as bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 export class AuthService {
-  private userRepository = AppDataSource.getRepository(UserEntity);
 
-  // Login Service
+
   async loginUser(
     credentials: Pick<UserEntity, "email" | "password">,
   ): Promise<{ token: string; user: Omit<UserEntity, "password"> }> {
-    const user = await this.userRepository.findOne({
+
+      const userRepository = AppDataSource.getRepository(UserEntity);
+      
+    const user = await userRepository.findOne({
       where: { email: credentials.email },
     });
 
