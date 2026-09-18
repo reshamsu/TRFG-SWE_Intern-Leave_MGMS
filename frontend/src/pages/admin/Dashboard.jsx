@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Check, Plus, X } from "lucide-react";
+import { ArrowUpRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -75,14 +75,12 @@ export default function Dashboard() {
 
         const data = await response.json();
 
-        // console.log("👉 ACTUAL BACKEND RESPONSE DATA:", data);
-
         if (!response.ok) {
           throw new Error(data.message || "Could not fetch all leave requests");
         }
-        setUsers(Array.isArray(data.history) ? data.history : []);
+        setLeaves(Array.isArray(data.history) ? data.history : []);
       } catch (error) {
-        console.log(error);
+        console.log("Error here", error);
         setError(error.message);
       } finally {
         setIsLoading(false);
@@ -148,9 +146,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-red-50">
-      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 2xl:px-0 flex flex-col">
+      <section className="max-w-7xl mx-auto py-8 px-6 md:px-10 3xl:px-0 flex flex-col">
         <div className="flex justify-between">
           <h3 className="text-lg font-semibold">Welcome Admin!</h3>
+
+          <Button
+            onClick={() => setDialogOpen(true)}
+            size="sm"
+            className="rounded-full px-4 cursor-pointer hover:scale-105 hover:shadow-xl duration-700 transition-all"
+          >
+            <Plus size={16} /> New User
+          </Button>
         </div>
 
         <div className="mt-4">
@@ -184,8 +190,8 @@ export default function Dashboard() {
               </CardDescription>
             </Card>
           </div>
-          <div className="mt-6 grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
-            <div className="flex flex-col items-start justify-between">
+          <div className="mt-6 grid grid-cols-1 xl:grid-cols-[2fr_.64fr] gap-4">
+            <div>
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold">Recent Leave Requests</h2>
 

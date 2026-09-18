@@ -45,7 +45,8 @@ export class UserController {
   ): Promise<Response | void> => {
     try {
       const users = await fetchAllUsers();
-      return res.status(200).json(users);
+        const safeUsers = users.map(({ password, ...user }) => user);
+      return res.status(200).json(safeUsers);
     } catch (error) {
       next(error);
     }

@@ -32,13 +32,13 @@ export default function ApplyLeave() {
     to: undefined,
   });
 
-  async function handleCreateRequest(event) {
-    event.preventDefault();
+  async function handleCreateRequest(e) {
+    e.preventDefault();
     setError("");
     setIsLoading(true);
 
     const token = sessionStorage.getItem("token");
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(e.currentTarget);
 
     try {
       if (!token) {
@@ -72,11 +72,8 @@ export default function ApplyLeave() {
 
       if (data.role === "admin") {
         navigate("/dashboard/admin");
-      } else if (data.role === "employee") {
-        navigate("/dashboard/employee");
       } else {
-        // Fallback route in case the role doesn't match or is missing
-        navigate("/dashboard");
+        navigate("/dashboard/employee");
       }
     } catch (error) {
       setError(error.message);

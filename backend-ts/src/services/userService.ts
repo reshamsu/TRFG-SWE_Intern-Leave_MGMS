@@ -4,7 +4,6 @@ import { UserEntity } from "../entities/userEntity.ts";
 import * as bcrypt from "bcrypt";
 
 const userRepository: Repository<UserEntity> = AppDataSource.getRepository(UserEntity);
-
 // --- USER FUNCTIONAL EXPORTS ---
 
 export const fetchAllUsers = async (): Promise<UserEntity[]> => {

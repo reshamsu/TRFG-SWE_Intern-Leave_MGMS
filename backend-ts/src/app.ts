@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Public authentication routes
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/admin", userRoutes);
+app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/leaves", leaveRoutes);
 
 // app.use("/api/admin", adminRoutes);
